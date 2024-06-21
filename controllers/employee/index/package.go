@@ -6,7 +6,26 @@ import(
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/onecthree/timesheet/database"
+	"github.com/onecthree/timesheet/functions"
 )
+
+func isGetQueryValid( ginContext *gin.Context ) bool {
+	page, exists := ginContext.GetQuery("page")
+	if exists == false || len(page) == 0 || functions.IsNumeric(page) == false {
+		return false
+	}
+
+	limit, exists := ginContext.GetQuery("limit")
+	if exists == false || len(limit) == 0 || functions.IsNumeric(limit) == false {
+		return false
+	}
+
+	if limit != "10" && limit != "25" && limit != "50" {
+		return false
+	}
+
+	return true
+}
 
 func getMaxPage( totalData string, limitData string ) (string, bool) {
 	totalDataCast, err := strconv.ParseUint(totalData, 10, 64)
@@ -31,6 +50,10 @@ func getMaxPage( totalData string, limitData string ) (string, bool) {
 
 func GetResponse( ginContext *gin.Context, db *sql.DB ) ([]map[string]string, int, string, bool) {
 	var emptyData []map[string]string
+
+	if isGetQueryValid(ginContext) == false {
+		return emptyData, http.StatusFound, "Request query are invalid", true
+	}
 
 	var query string
 	query += database.Query(`SELECT COUNT(employee.id) AS totalData`)

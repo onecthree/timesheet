@@ -703,10 +703,10 @@
                             <div class="row-show">
                                 <span>Tampilkan</span>
                                 <div>
-                                    <select class="form-select" aria-label="Default select example">
-                                        <option value="1">10</option>
-                                        <option value="2">25</option>
-                                        <option value="3">50</option>
+                                    <select class="form-select" id="onTableLimitSelect">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
                                     </select>
                                 </div>
                                 <span>daftar</span>
@@ -836,7 +836,7 @@
             }, 250);
         }
 
-         function hideAddActivity()
+        function hideAddActivity()
         {
             $("#float-app").hide("fade", {
                 direction: "top"
@@ -862,6 +862,11 @@
 
         $(document).ready( function()
         {
+            $("#onTableLimitSelect").on("change", function()
+            {
+                table.targetPage(table.query_page, parseInt(this.value));
+            });
+
             table.targetPage(table.query_page, table.query_limit);
         });
     </script>

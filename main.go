@@ -40,7 +40,6 @@ func main() {
 
 	/** {{ Application Route **/
  	app.GET("/", func( c *gin.Context ) {
-		// c.HTML(http.StatusOK, "index.html", gin.H{})
 		c.Redirect(http.StatusFound, "/employee?page=1&limit=10")
   	})
 
@@ -51,13 +50,10 @@ func main() {
   	})
 
   	app.GET("/employee", func( c *gin.Context ) {
-  		data, httpStatusCode, message, isControllersFailed := controllersEmployeeIndex.GetResponse(c, database)
+  		data, httpStatusCode, _, isControllersFailed := controllersEmployeeIndex.GetResponse(c, database)
 
   		if isControllersFailed {
-	  		c.JSON(httpStatusCode, gin.H{
-				"success": false,
-				"message": message,
-			})	
+			c.Redirect(httpStatusCode, "/employee?page=1&limit=10")
   		} else {
 	  		c.HTML(http.StatusOK, "employee.html", gin.H{
 	  			"appName": appName,

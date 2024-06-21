@@ -6,21 +6,17 @@ import(
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/onecthree/timesheet/database"
+	"github.com/onecthree/timesheet/functions"
 )
-
-func isNumeric(s string) bool {
-    _, err := strconv.ParseUint(s, 10, 64)
-    return err == nil
-}
 
 func isPostQueryValid( ginContext *gin.Context ) bool {
 	page, exists := ginContext.GetQuery("page")
-	if exists == false || len(page) == 0 || isNumeric(page) == false {
+	if exists == false || len(page) == 0 || functions.IsNumeric(page) == false {
 		return false
 	}
 
 	limit, exists := ginContext.GetQuery("limit")
-	if exists == false || len(limit) == 0 || isNumeric(limit) == false {
+	if exists == false || len(limit) == 0 || functions.IsNumeric(limit) == false {
 		return false
 	}
 
