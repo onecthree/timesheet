@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/static/lib/jquery/jquery-3.7.1.min.js?873" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="/static/lib/jquery/jquery-ui-1.13.2.min.js?53" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <script src="/static/js/employee.js"></script>
+    <title>Daftar Karyawan - {{ .appName }}</title>
+    <style>
+        body
+        {
+            margin: 0;
+            padding: 0;
+        }
+
+        textarea:focus, input:focus, select:focus
+        {
+            outline: none;
+        }
+
+        .nunito
+        {
+            font-family: "Nunito", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+        }
+
+        #brand-section
+        {
+            border: 0px solid rgba(0, 0, 0, .25);            
+            border-bottom-width: 3px;
+        }
+
+        .brand-target
+        {
+            display: flex;
+            flex-direction: column;
+            font-weight: bold;
+            margin: 15px;
+            margin-left: 50px;
+            color: #F15858;
+        }
+
+        .brand-target span
+        {
+            margin: -4px;
+        }
+
+        #navbar
+        {
+            max-height: 300px;
+/*            background: blue;*/
+        }
+
+        #navbar .main-title
+        {
+            font-size: 30px;
+            font-weight: bold;
+            margin: 10px;
+            margin-left: 25px;
+            opacity: .75;
+/*            background: yellow;*/
+        }
+
+        #navbar .navbar-section
+        {
+            height: 55px;
+            display: flex;
+            flex-direction: column;
+            font-weight: 600;
+            justify-content: space-between;
+/*            background: grey;*/
+        }
+
+        #navbar .navbar-section .navbar-target
+        {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            margin-left: 45px;
+        }
+
+
+        #navbar .navbar-section .navbar-target .links
+        {
+            display: flex;
+            gap: 8px;
+            flex-direction: column;
+            justify-content: space-between;
+/*            background: red;*/
+        }
+
+        .active
+        {
+            color: #2775EC;
+        }
+
+        .non-active
+        {
+            color: rgba(0, 0, 0, .6);
+        }
+
+        .border
+        {
+            border: 2.5px solid #2775EC;
+            border-radius: 3px;
+        }
+
+        .non-border
+        {
+            border: 2.5px solid transparent;
+            border-radius: 3px;
+        }
+
+        #app
+        {
+            height: fit-content;
+            padding: 30px;
+            background: rgba(0, 0, 0, .05);
+        }
+
+        #app-section
+        {
+            min-height: 950px;
+            background: #ffffff;
+            border-radius: 23px;
+        }
+
+        .app-border
+        {
+            padding: 40px;
+        }
+
+        .app .app-section .app-border .top-section
+        {
+            display: flex;
+            flex-direction: row;
+        }
+
+        #app #app-section .app-border .top-section
+        {
+            display: flex;
+            flex-direction: row;
+            gap: 120px;
+        }
+
+
+        #app #app-section .app-border .top-section .space-section
+        {
+            display: flex;
+            gap: 7px;
+            flex-direction: column;
+        }
+
+        #app #app-section .app-border .top-section .space-section .title-info
+        {
+            color: rgba(0, 0, 0, .7);
+        }
+
+        #app #app-section .app-border .middle-section
+        {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+
+        #app #app-section .app-border .middle-section .vertical-space
+        {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 13px;
+        }
+
+        .title-bold
+        {
+            font-weight: 700;
+        }
+
+        .button
+        {
+            background: #F0F6FF;
+            padding: 20px;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            color: #2775EC;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #search
+        {
+            position: relative;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            border: 1.5px solid rgba(0, 0, 0, .1);
+            border-radius: 4px;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, .15);
+            height: 45px;
+            width: 350px;
+        }
+
+        .search-icon
+        {
+            margin-left: 15px;
+            color: rgba(0, 0, 0, .4);
+        }
+
+        #search-text
+        {
+            font-size: 16px;
+            border: 0px solid transparent;
+            height: 35px;
+            width: 280px;
+            margin-right: 15px;
+            color: rgba(0, 0, 0, .7);
+        }
+
+        .filter-button
+        {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1.5px solid rgba(0, 0, 0, .1);
+            border-radius: 4px;
+            box-shadow: 1px 1px 5px rgba(0, 0, 0, .15);
+            height: 45px;
+            width: 45px;
+        }
+
+        .filter-button .bi-filter
+        {
+            font-size: 22px;
+            color: rgba(0, 0, 0, .8);
+        }
+
+
+        #app #app-section .app-border .bottom-section
+        {
+            margin-top: 70px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 3px;
+        }
+
+        table
+        {
+/*            background: green;*/
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+            width: 100%;
+            padding: 10px;
+        }
+
+        th
+        {
+            text-align: left;
+            padding: 10px;
+        }
+
+        table tr td
+        {
+/*            border: 1px solid red;*/
+            text-align: left;
+            padding: 10px;
+        }
+
+        .table-head
+        {
+/*            background: red;*/
+            width: 100%;
+        }
+
+        .bi-sort-down-alt
+        {
+            font-size: 18px;
+        }
+
+        .thead
+        {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-table
+        {
+            width: 100%;
+            display: flex;
+            flex-direction: row;
+            gap: 15px;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .delete
+        {
+            color: #E61717;
+        }
+
+        .edit
+        {
+            color: #D37C51;
+        }
+
+        .row-show
+        {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        select
+        {
+            border: 1px solid rgba(0, 0, 0, .1);
+            border-radius: 5px;
+            background: #ffffff;
+            padding: 11px;
+            font-size: 14px;
+        }
+
+        option
+        {
+            border: 1px solid rgba(0, 0, 0, .1);
+            background: #ffffff;
+        }
+
+        .duration-row
+        {
+            color: #2775EC;
+            padding: 7px;
+            margin-top: 27px;
+            padding-left: 20px;
+            padding-right: 30px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+/*            background: red;*/
+        }
+
+        .loan-row
+        {
+            color: #2775EC;
+            padding: 7px;
+            padding-left: 20px;
+            padding-right: 30px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        #float-container
+        {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 100vh;
+            width: 100vw;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            background: rgba(0, 0, 0, .5);
+            opacity: 0;
+        }
+
+        #float-app
+        {
+            height: 560px;
+            width: 1000px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 30px;
+        }
+
+        .window-top
+        {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            font-weight: bold;
+        }
+
+        .window-content
+        {
+            margin-top: 65px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .date-content
+        {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .date-wrap
+        {
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .date-box
+        {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(0, 0, 0, .3);
+            border-radius: 5px;
+            height: 49px;
+            width: 70%;
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+
+        .date-box input
+        {
+            border: 0px solid transparent;
+            font-size: 15px;
+            width: 70%;
+        }
+
+        .title-activity
+        {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .title-activity input
+        {
+            border: 1px solid rgba(0, 0, 0, .2);
+            border-radius: 5px;
+            height: 44px;
+            font-size: 16px;
+            padding: 5px;
+            padding-left: 20px;
+        }
+
+        .title-project
+        {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            justify-content: space-between;
+        }
+
+        .float-title
+        {
+            color: rgba(0, 0, 0, .7);
+        }
+
+        .float-save
+        {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .inline-button
+        {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .float-save .float-button
+        {
+            display: flex;
+            gap: 5px;
+            justify-content: center;
+            align-items: center;
+            border-radius: 5px;
+            padding: 10px 20px 10px 20px;
+        }
+
+        .button-primary
+        {
+            color: rgba(0, 0, 255, .5);
+            background: rgba(0, 0, 255, .1);
+            border: 1px solid rgba(0, 0, 255, .5);
+            cursor: pointer;
+        }
+
+        .button-primary:hover
+        {
+            color: rgba(0, 0, 255, .6);
+            background: rgba(0, 0, 255, .2);
+            border: 1px solid rgba(0, 0, 255, .5);
+            cursor: pointer;
+        }
+
+        .button-danger
+        {
+            color: rgba(19, 85, 54, .7);
+            background: rgba(248, 215, 218, .7);
+            border: 1px solid rgba(19, 85, 54, .4);
+            cursor: pointer;
+        }
+
+        .button-danger:hover
+        {
+            color: rgba(19, 85, 54, 1);
+            background: rgba(248, 215, 218, 1);
+            border: 1px solid rgba(19, 85, 54, .4);
+            cursor: pointer;
+        }
+
+        .text-danger
+        {
+            color: #E25A67;
+        }
+
+        .close-float
+        {
+            cursor: pointer;
+        }
+
+        .form-control
+        {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .text-small
+        {
+            font-size: 13.5px;
+        }
+
+        .datetime-target
+        {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+
+        a
+        {
+            padding: 0;
+            text-decoration: none;
+            color: black;
+        }
+
+        .empty-pagination, .table-pagination
+        {
+            display: flex;
+            flex-direction: row;
+        }
+
+        table
+        {
+/*            border: 1px solid black;*/
+            table-layout: fixed;
+        }
+
+        th,
+        td
+        {
+/*            border: 1px solid black;*/
+            width: 100px;
+            overflow: hidden;
+        }
+
+        tr:nth-child(even)
+        {
+          background: rgba(0, 0, 0, .05);
+        }
+    </style>
+</head>
+<body>
+    <div id="float-container" style="display: none;">
+        <div id="float-app" class="nunito" style="display: none">
+            <div class="window-top">
+                <div>Tambah Kegiatan Baru</div>
+                <div class="close-float" onclick="javascript:hideAddActivity();"><i class="bi bi-x-lg"></i></div>
+            </div>
+            <div class="window-content">
+                <div class="date-content">
+                    <div class="date-wrap">
+                        <span class="float-title">Tanggal mulai <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
+                            <span class="text-danger text-small">Kolom harus terisi</span>
+                        </div>
+                    </div>
+
+                    <div class="date-wrap">
+                        <span class="float-title">Tanggal berakhir <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
+                            <span class="text-danger text-small">Kolom harus terisi</span>
+                        </div>
+                    </div>
+
+                    <div class="date-wrap">
+                        <span class="float-title">Jam mulai <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
+                            <span class="text-danger text-small">Kolom harus terisi</span>
+                        </div>
+                    </div>
+
+                    <div class="date-wrap">
+                        <span class="float-title">Jam berakhir <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
+                            <span class="text-danger text-small">Kolom harus terisi</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="title-activity">
+                    <span class="float-title">Judul kegiatan <span class="text-danger">*</span></span>
+                    <div class="form-control">
+                        <input type="" name="">
+                        <small class="text-danger">Kolom harus terisi</small>
+                    </div>
+                </div>
+                <div class="title-project">
+                    <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
+                    <div class="form-control">
+                        <select class="form-select" aria-label="Default select example">
+                            <option value="1" selected>Pilih salah satu proyek</option>
+                            <option value="1">10</option>
+                            <option value="2">25</option>
+                            <option value="3">50</option>
+                        </select>
+                        <small class="text-danger">Kolom harus terisi</small>
+                    </div>
+                </div>
+                <div class="float-save">
+                    <span class="text-danger">* Wajib diisi</span>
+                    <span class="inline-button">
+                        <span class="float-button button-danger" onclick="javascript:hideAddActivity();">Lupakan</span>
+                        <span class="float-button button-primary">Buat kegiatan</span>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="container">
+        <div id="brand-section">
+            <div class="brand-target nunito">
+                <span style="font-size: 22px;">Timesheet</span>
+                <span style="font-size: 18px;">Management</span>
+            </div>
+        </div>
+        <div id="navbar">
+            <div class="main-title nunito">HH Timesheet</div>
+            <div class="navbar-section nunito">
+                <div></div>
+                <div class="navbar-target">
+                    <div class="links">
+                        <a href="/employee"class="active">Daftar Karyawan</a></a>
+                        <span class="border"></span>
+                    </div>
+                    <div class="links">
+                        <a href="/activity" class="non-active">Daftar Kegiatan</a></a>
+                        <span class="non-border"></span>
+                    </div>
+                    <div class="links">
+                        <a href="/setting" class="non-active">Pengaturan<a/></a>
+                        <span class="non-border"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="app" class="nunito">
+            <div id="app-section">
+                <div class="app-border">
+                    <div class="middle-section">
+                        <div class="vertical-space">
+                            <span class="title-bold">Daftar Karyawan</span>
+                            <a href="/setting" class="button" onclick="javascript:showAddActivity();"><i class="bi bi-plus-circle-fill"></i> Tambah karyawan</a>
+                        </div>
+                        <div class="vertical-space">
+                            <div class="row-show">
+                                <span>Tampilkan</span>
+                                <div>
+                                    <select class="form-select" aria-label="Default select example">
+                                        <option value="1">10</option>
+                                        <option value="2">25</option>
+                                        <option value="3">50</option>
+                                    </select>
+                                </div>
+                                <span>daftar</span>
+                            </div>
+                            <div id="search">
+                                <i class="bi bi-search search-icon"></i>
+                                <form>
+                                    <input type="text" id="search-text" name="keysearch">
+                                </form>
+                            </div>
+                            <div class="filter-button">
+                                <i class="bi bi-filter"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bottom-section">
+                        <table>
+                            <tr class="table-head">
+                                <th><div class="thead"><span>Nama Karyawan</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
+                                <th><div class="thead"><span>Harga Rate</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
+                                <th><div class="thead"><span>Total Kegiatan</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
+                                <th style="text-align: center;">Aksi</th>
+                            </tr>
+                            <tbody class="table-body-placeholder">
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                            </tbody>
+                            <tbody class="table-body">
+                            </tbody>
+                        </table>
+                        <div class="duration-row">
+                            <div class="empty-pagination">Foo</div>
+                            <div class="table-pagination">
+                                <div class="btn-left-page">
+                                     <span class="btn btn-secondary btn-before-page" onclick="javascript:table.beforePage();"><i class="bi bi-caret-left-fill"></i>
+                                     </span>
+                                 </div>
+                                <div class="pagination"></div>
+                                <div class="btn-right-page">
+                                     <span class="btn btn-secondary btn-next-page" onclick="javascript:table.nextPage();"><i class="bi bi-caret-right-fill"></i>
+                                     </span>
+                                 </div>
+                            </div>
+                        </div>
+                        <div class="loan-row">
+                            <!-- <span>Total pendapatan</span>
+                            <span>—</span> -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // return false;
+        function showAddActivity()
+        {
+            $("#float-container").show();
+            $("#float-container").animate({
+                opacity: 1,
+            }, 150);
+
+            setTimeout( function()
+            {
+                $("#float-app").show("fade", {
+                    direction: "top"
+                }, 300);
+            }, 250);
+        }
+
+         function hideAddActivity()
+        {
+            $("#float-app").hide("fade", {
+                direction: "top"
+            }, 300);
+            
+            setTimeout( function()
+            {
+                $("#float-container").animate({
+                    opacity: 0,
+                }, 200);
+
+                setTimeout( function()
+                {
+                    $("#float-container").hide();
+                }, 400);
+            }, 300);
+        }
+
+        let G_csrfToken = "payment_account_bcc8df429ee9a8f472edb732c3174a19";
+        table.query_page = parseInt({{ .currentPage }}); // current page
+        table.query_limit = parseInt({{ .currentLimit }}); // current page
+        table.max_page = parseInt({{ .maxPage }}); // pagination count
+
+        $(document).ready( function()
+        {
+            table.targetPage(table.query_page, table.query_limit);
+        });
+    </script>
+</body>
+</html>
