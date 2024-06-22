@@ -377,13 +377,22 @@
             align-items: center;
             z-index: 9999;
             background: rgba(0, 0, 0, .5);
-            opacity: 0;
+/*            opacity: 0;*/
         }
 
         #float-app
         {
             height: 560px;
             width: 1000px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 30px;
+        }
+
+        #float-alert
+        {
+            height: 190px;
+            width: 380px;
             background: #ffffff;
             border-radius: 14px;
             padding: 30px;
@@ -491,7 +500,7 @@
             gap: 10px;
         }
 
-        .float-save .float-button
+        .float-button
         {
             display: flex;
             gap: 5px;
@@ -499,6 +508,7 @@
             align-items: center;
             border-radius: 5px;
             padding: 10px 20px 10px 20px;
+            font-weight: bold;
         }
 
         .button-primary
@@ -598,6 +608,16 @@
           background: rgba(0, 0, 0, .05);
         }
 
+        tr:nth-child(odd):hover
+        {
+          background: rgba(0, 0, 0, .03);
+        }
+
+        tr:nth-child(even):hover
+        {
+          background: rgba(0, 0, 0, .08);
+        }
+
         @-webkit-keyframes rotating /* Safari and Chrome */ {
             from {
                 -webkit-transform: rotate(0deg);
@@ -642,77 +662,99 @@
             justify-content: center;
             align-items: center;
         }
+
+        .btn, .btn-left-page, .btn-right-page
+        {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(0, 0, 0, .1);
+            background: rgba(0, 0, 0, .09);
+            border-radius: 4px;
+            height: 47px;
+            width: 47px;
+            cursor: pointer;
+        }
+
+
+        .btn:hover, .btn-left-page:hover, .btn-right-page:hover 
+        {
+            background: rgba(0, 0, 0, .1);
+        }
+
+        .pagination
+        {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+        }
+
+        .table-pagination
+        {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .disabled
+        {
+            opacity: .7;
+        }
+
+        .float-alert
+        {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .alert-desc
+        {
+            display: flex;
+            justify-content: center;
+            padding-bottom: 12%;
+            align-items: center;
+            font-size: 20px;
+            height: 60%;
+/*            background: red;*/
+        }
+
+        .alert-button
+        {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            height: 20%;
+        }
+
+        .alert-same
+        {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .alert-button button
+        {
+            display: flex;
+            align-items: center;
+            height: 30px;
+            width: fit-content;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .icon-pointer
+        {
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
     <div id="float-container" style="display: none;">
-        <div id="float-app" class="nunito" style="display: none">
-            <div class="window-top">
-                <div>Tambah Kegiatan Baru</div>
-                <div class="close-float" onclick="javascript:hideAddActivity();"><i class="bi bi-x-lg"></i></div>
-            </div>
-            <div class="window-content">
-                <div class="date-content">
-                    <div class="date-wrap">
-                        <span class="float-title">Tanggal mulai <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Tanggal berakhir <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Jam mulai <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Jam berakhir <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="title-activity">
-                    <span class="float-title">Judul kegiatan <span class="text-danger">*</span></span>
-                    <div class="form-control">
-                        <input type="" name="">
-                        <small class="text-danger">Kolom harus terisi</small>
-                    </div>
-                </div>
-                <div class="title-project">
-                    <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
-                    <div class="form-control">
-                        <select class="form-select" aria-label="Default select example">
-                            <option value="1" selected>Pilih salah satu proyek</option>
-                            <option value="1">10</option>
-                            <option value="2">25</option>
-                            <option value="3">50</option>
-                        </select>
-                        <small class="text-danger">Kolom harus terisi</small>
-                    </div>
-                </div>
-                <div class="float-save">
-                    <span class="text-danger">* Wajib diisi</span>
-                    <span class="inline-button">
-                        <span class="float-button button-danger" onclick="javascript:hideAddActivity();">Lupakan</span>
-                        <span class="float-button button-primary">Buat kegiatan</span>
-                    </span>
-                </div>
-            </div>
-        </div>
+        <div id="float-alert" class="nunito" style="display: none;"></div>
+        <div id="float-app" class="nunito" style="display: none;"></div>
     </div>
     <div id="container">
         <div id="brand-section">
@@ -847,16 +889,17 @@
                             </tbody>
                         </table>
                         <div class="duration-row">
-                            <div class="empty-pagination">Foo</div>
+                            <div class="empty-pagination">&nbsp;</div>
                             <div class="table-pagination">
-                                <div class="btn-left-page">
-                                     <span class="btn btn-secondary btn-before-page" onclick="javascript:table.beforePage();"><i class="bi bi-caret-left-fill"></i>
-                                     </span>
+                                <div class="btn-left-page" onclick="javascript:table.beforePage();">
+                                    <div class="btn-secondary btn-before-page">
+                                        <i class="bi bi-caret-left-fill"></i>
+                                    </div>
                                  </div>
                                 <div class="pagination"></div>
-                                <div class="btn-right-page">
-                                     <span class="btn btn-secondary btn-next-page" onclick="javascript:table.nextPage();"><i class="bi bi-caret-right-fill"></i>
-                                     </span>
+                                <div class="btn-right-page" onclick="javascript:table.nextPage();">
+                                     <div class="btn-secondary btn-next-page"><i class="bi bi-caret-right-fill"></i>
+                                     </div>
                                  </div>
                             </div>
                         </div>
@@ -884,25 +927,6 @@
                     direction: "top"
                 }, 300);
             }, 250);
-        }
-
-        function hideAddActivity()
-        {
-            $("#float-app").hide("fade", {
-                direction: "top"
-            }, 300);
-            
-            setTimeout( function()
-            {
-                $("#float-container").animate({
-                    opacity: 0,
-                }, 200);
-
-                setTimeout( function()
-                {
-                    $("#float-container").hide();
-                }, 400);
-            }, 300);
         }
 
         let G_csrfToken = "payment_account_bcc8df429ee9a8f472edb732c3174a19";

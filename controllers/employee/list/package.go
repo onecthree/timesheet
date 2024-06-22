@@ -42,7 +42,7 @@ func getTotalActivitySearch( ginContext *gin.Context ) (string, bool) {
 	return totalActivitySearch, true
 }
 
-func getPageQueryAsPage( newPage string ) (string, bool) {
+func getPageQueryAsPage( newPage string, limit string ) (string, bool) {
 	page, err := strconv.ParseUint(newPage, 10, 64)
 	if err != nil {
 		return "", false
@@ -52,7 +52,12 @@ func getPageQueryAsPage( newPage string ) (string, bool) {
 		return "0", true
 	}
 
-	return strconv.Itoa(int((page - 1) * 10)), true
+	limitCast, err := strconv.ParseUint(limit, 10, 64)
+	if err != nil {
+		return "", false
+	}
+
+	return strconv.Itoa(int((page - 1) * limitCast)), true
 }
 
 func getLimitQueryAsLimit( ginContext *gin.Context ) (string, bool) {
@@ -164,15 +169,19 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 		return emptyData, http.StatusInternalServerError, "Internal server error", true
 	}
 
+	fmt.Printf("newPage, %v\n", newPage);
+
 	maxPage, ok := getMaxPage(totalData, limit)
 	if ok == false {
 		return emptyData, http.StatusInternalServerError, "Internal server error", true
 	}
 
-	pageLimit, ok := getPageQueryAsPage(newPage)
+	pageLimit, ok := getPageQueryAsPage(newPage, limit)
 	if ok == false {
 		return emptyData, http.StatusInternalServerError, "Internal server error", true
 	}
+
+	fmt.Printf("newLimit, %v\n", pageLimit);
 
 	var dataQuery string
 	dataQuery += database.Query(`SELECT employee.id, employee.name, employee.rate,`)
