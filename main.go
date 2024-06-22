@@ -9,6 +9,7 @@ import(
 	"database/sql"
 	// "github.com/onecthree/timesheet/database"
 	controllersEmployeeIndex "github.com/onecthree/timesheet/controllers/employee/index"
+	controllersEmployeeCreate "github.com/onecthree/timesheet/controllers/employee/create"
 	controllersEmployeeList "github.com/onecthree/timesheet/controllers/employee/list"
 	controllersEmployeeDelete "github.com/onecthree/timesheet/controllers/employee/delete"
 
@@ -95,6 +96,15 @@ func main() {
 				"data": data,
 			})	
   		}
+  	})
+
+	app.POST("/employee/create", func( c *gin.Context ) {
+  		httpStatusCode, message, _ := controllersEmployeeCreate.PostResponse(c, database)
+
+  		c.JSON(httpStatusCode, gin.H{
+			"success": false,
+			"message": message,
+		})	
   	})
 
   	app.POST("/employee/list", func( c *gin.Context ) {

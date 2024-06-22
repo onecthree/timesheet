@@ -1,4 +1,4 @@
-package list
+package delete
 
 import(
 	// "fmt"

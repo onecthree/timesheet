@@ -48,7 +48,7 @@ func getTotalActivitySearch( ginContext *gin.Context ) (string, bool) {
 	if ok == false || functions.IsNumeric(totalActivitySearch) == false {
 		return "", false
 	}
-	
+
 	return totalActivitySearch, true
 }
 
@@ -204,28 +204,29 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	dataQuery += database.Query(`AS total_activity`)
 	// dataQuery += database.Query(`GROUP BY employee.id`)
 	dataQuery += database.Query(`FROM employee`)
-	if querySearch == "" && orderBy == "default" {
-		dataQuery += database.Query(`WHERE id > `+ pageLimit)
-		dataQuery += database.Query(`AND employee.expired != 1`)
-	} else {
+	// if querySearch == "" && orderBy == "default" {
+	// 	dataQuery += database.Query(`WHERE id > `+ pageLimit)
+	// 	dataQuery += database.Query(`AND employee.expired != 1`)
+	// } else {
 		dataQuery += database.Query(`WHERE employee.expired != 1`)
-	}
+	// }
 	dataQuery += database.Query(`AND ( LOWER(name) LIKE LOWER('%`+ querySearch +`%')`)
 	dataQuery += database.Query(`OR LOWER(rate) LIKE LOWER('%`+ querySearch +`%') )`)
 
 	if orderBy != "default" {
-		dataQuery += database.Query("ORDER BY employee."+ orderBy +" "+ sortBy);	
+		dataQuery += database.Query("ORDER BY "+ orderBy +" "+ sortBy);	
 	}
 
 	if totalActivitySearchOk {
+		fmt.Printf("ADAAAAA1122\n")
 		dataQuery += database.Query(`GROUP BY employee.id`)
 		dataQuery += database.Query(`HAVING total_activity = `+ totalActivitySearch)	
 	}
 
 	dataQuery += database.Query(`LIMIT `+ limit)
-	if querySearch != "" || orderBy != "default" {
+	// if querySearch != "" || orderBy != "default" {
 		dataQuery += database.Query(`OFFSET `+ pageLimit)
-	}
+	// }
 
 	fmt.Printf("Query: %v\n", dataQuery)
 

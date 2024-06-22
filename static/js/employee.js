@@ -36,7 +36,7 @@ const appFloat =
             }, 400);
         }, 300);
     },
-    processFailed: function( errorCode )
+    processDeleteFailed: function( errorCode )
     {
         setTimeout( function() {
             $("#float-alert div").hide("fade", 500);
@@ -48,7 +48,7 @@ const appFloat =
             }, 500);
         }, 1000);
     },
-    processSuccess: function()
+    processDeleteSuccess: function()
     {
         setTimeout( function() {
             $("#float-alert div").hide("fade", 500);
@@ -85,18 +85,22 @@ const appFloat =
                 {
                     200: ( response, status, xhr ) =>
                     {
-                        appFloat.processSuccess();
+                        appFloat.processDeleteSuccess();
                         setTimeout( function() {
                             javascript:table.redraw();
                         }, 3000);
                     },
                     400: ( response ) =>
                     {
-                        appFloat.processFailed(400);
+                        appFloat.processDeleteFailed(400);
                     },
                     404: ( response ) =>
                     {
-                        appFloat.processFailed(404);
+                        appFloat.processDeleteFailed(404);
+                    },
+                    500: ( response ) =>
+                    {
+                        appFloat.processDeleteFailed(500);
                     },
                 }
             });
@@ -129,7 +133,53 @@ const appFloat =
             }, 300);
         }, 250);
     },
-    confirmEdit: function( name )
+    processCreateFailed: function( errorCode )
+    {
+        setTimeout( function() {
+            alert(errorCode);
+        }, 1000);
+    },
+    processCreateSuccess: function()
+    {
+        setTimeout( function() {
+            alert("data terbuat");
+        }, 1000);
+    },
+    processCreate: function( name, rate )
+    {
+        let dataReq = new FormData();
+        dataReq.append("name", name);
+        dataReq.append("rate", rate);
+
+        $.ajax({
+            url: `/employee/create`,
+            type: "POST",
+            processData: false,
+            contentType: false,
+            // dataType: "multipart/form-data",
+            data: dataReq,
+            headers: { "X-CSRF-Token": G_csrfToken },
+            statusCode:
+            {
+                200: ( response, status, xhr ) =>
+                {
+                    appFloat.processCreateSuccess();
+                    setTimeout( function() {
+                        javascript:table.redraw();
+                    }, 3000);
+                },
+                400: ( response ) =>
+                {
+                    appFloat.processCreateFailed(400);
+                },
+                500: ( response ) =>
+                {
+                    appFloat.processCreateFailed(500);
+                },
+            }
+        });
+    },
+    confirmCreate: function( name )
     {
         // const htmlx =
         // `
@@ -210,7 +260,7 @@ const appFloat =
                 <div class="title-activity">
                     <span class="float-title">Nama karyawan <span class="text-danger">*</span></span>
                     <div class="form-control">
-                        <input type="" name="">
+                        <input type="" name="name">
                         <small class="text-danger">Kolom harus terisi</small>
                     </div>
                 </div>
@@ -219,7 +269,7 @@ const appFloat =
                     <div class="form-control">
                         <div class="rate-input-bar">
                             <span class="rate-input-bar-rp">Rp</span>
-                            <div><input type="" name="" class="input-employee-rate"></div>
+                            <div><input type="" name="rate" class="input-employee-rate"></div>
                             <span class="rate-input-bar-hour">/ Jam</span>
                         </div>
                         <small class="text-danger">asda</small>
@@ -229,7 +279,7 @@ const appFloat =
                     <span class="text-danger">* Wajib diisi</span>
                     <span class="inline-button">
                         <span class="float-button button-danger" onclick="javascript:hideAddActivity();">Lupakan</span>
-                        <span class="float-button button-primary">Buat kegiatan</span>
+                        <span class="float-button button-primary" onclick="javascript:appFloat.processCreate($('input[name=name]').val(), $('input[name=rate]').val())">Tambah karyawan</span>
                     </span>
                 </div>
             </div>
@@ -334,13 +384,14 @@ const table =
 
         switch( order_by )
         {
+            case "name":
+            case "rate":
             case "total_activity":
-
-            break;
-            default:
                 table.query_order_by = order_by;
                 table.query_sort_by = sort_by;
                 table.targetPage(table.query_page, table.query_limit, table.query_search);
+            break;
+            default:
             break;
         }
     },
