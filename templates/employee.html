@@ -393,6 +393,9 @@
         {
             height: 190px;
             width: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             background: #ffffff;
             border-radius: 14px;
             padding: 30px;
@@ -709,6 +712,11 @@
             flex-direction: column;
         }
 
+        .d-none
+        {
+            display: none;
+        }
+
         .alert-desc
         {
             display: flex;
@@ -748,6 +756,39 @@
         .icon-pointer
         {
             cursor: pointer;
+        }
+
+        .filter-sort
+        {
+            cursor: pointer;
+        }
+
+
+        .spinner
+        {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          border: 3px solid rgba(0, 0, 0, .2);
+          border-radius: 50%;
+          border-top-color: rgba(0, 0, 0, .7);
+          animation: spin 1s ease-in-out infinite;
+          -webkit-animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin
+        {
+          to { -webkit-transform: rotate(360deg); }
+        }
+
+        @-webkit-keyframes spin
+        {
+          to { -webkit-transform: rotate(360deg); }
+        }
+
+        #appAlertConfirmButton
+        {
+            width: 135px;
         }
     </style>
 </head>
@@ -818,9 +859,9 @@
                     <div class="bottom-section">
                         <table>
                             <tr class="table-head">
-                                <th><div class="thead"><span>Nama Karyawan</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
-                                <th><div class="thead"><span>Harga Rate</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
-                                <th><div class="thead"><span>Total Kegiatan</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
+                                <th><div class="thead"><span>Nama Karyawan</span><div class="filter-sort" id="nameSort" onclick="javascript:table.order(this, 'name', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Harga Rate</span><div class="filter-sort" id="rateSort" onclick="javascript:table.order(this, 'rate', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Total Kegiatan</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
                                 <th style="text-align: center;">Aksi</th>
                             </tr>
                             <tbody class="table-body-placeholder">
@@ -933,6 +974,8 @@
         table.query_page = parseInt({{ .currentPage }}); // current page
         table.query_limit = parseInt({{ .currentLimit }}); // current page
         table.query_search = {{ .currentSearch }}; // current page
+        table.query_order_by = {{ .currentOrderBy }};
+        table.query_sort_by = {{ .currentSortBy }};
         table.max_page = parseInt({{ .maxPage }}); // pagination count
 
         let G_onRoleSearchState = 0;
@@ -982,7 +1025,7 @@
             {
                 const limit = parseInt(this.value);
                 table.query_limit = limit;
-                table.targetPage(table.query_page, limit);
+                table.targetPage(table.query_page, limit, table.query_search);
             });
 
             table.targetPage(table.query_page, table.query_limit, table.query_search);

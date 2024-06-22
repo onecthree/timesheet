@@ -40,7 +40,7 @@ func main() {
 
 	/** {{ Application Route **/
  	app.GET("/", func( c *gin.Context ) {
-		c.Redirect(http.StatusFound, "/employee?page=1&limit=10")
+		c.Redirect(http.StatusFound, "/employee?page=1&limit=10&order_by=default&sort_by=asc")
   	})
 
   	app.POST("/", func( c *gin.Context ) {
@@ -53,7 +53,7 @@ func main() {
   		data, httpStatusCode, _, isControllersFailed := controllersEmployeeIndex.GetResponse(c, database)
 
   		if isControllersFailed {
-			c.Redirect(httpStatusCode, "/employee?page=1&limit=10")
+			c.Redirect(httpStatusCode, "/employee?page=1&limit=10&order_by=default&sort_by=asc")
   		} else {
   			querySearch, ok := c.GetQuery("search")
   			if ok == false {
@@ -66,6 +66,8 @@ func main() {
 	  			"currentPage": c.Query("page"),
 	  			"currentLimit": c.Query("limit"),
 	  			"currentSearch": querySearch,
+	  			"currentOrderBy": c.Query("order_by"),
+	  			"currentSortBy": c.Query("sort_by"),
 	  		})
   		}
   	})

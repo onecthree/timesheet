@@ -21,6 +21,16 @@ func isPostQueryValid( ginContext *gin.Context ) bool {
 		return false
 	}
 
+	order_by, exists := ginContext.GetQuery("order_by")
+	if exists == false || len(order_by) == 0 || (order_by != "default" && order_by != "name" && order_by != "rate" && order_by != "total_activity") {
+		return false
+	}
+
+	sort_by, exists := ginContext.GetQuery("sort_by")
+	if exists == false || len(sort_by) == 0 || (sort_by != "asc" && sort_by != "desc") {
+		return false
+	}
+
 	return true
 }
 
@@ -131,12 +141,12 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	result := make(map[string][]map[string]string, 3)
 
 	if isPostQueryValid(ginContext) == false {
-		return emptyData, http.StatusBadRequest, "Request query are invalid", true
+		return emptyData, http.StatusBadRequest, "Request query are invalid [0]", true
 	}
 
 	limit, ok := getLimitQueryAsLimit(ginContext)
 	if ok == false {
-		return emptyData, http.StatusInternalServerError, "Internal server error", true
+		return emptyData, http.StatusInternalServerError, "Internal server error [0]", true
 	}
 
 	querySearch := getQuerySearch(ginContext)
@@ -166,22 +176,25 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 
 	newPage, ok := currentTargetPageCompare(totalData, ginContext);
 	if ok == false {
-		return emptyData, http.StatusInternalServerError, "Internal server error", true
+		return emptyData, http.StatusInternalServerError, "Internal server error [1]", true
 	}
 
 	fmt.Printf("newPage, %v\n", newPage);
 
 	maxPage, ok := getMaxPage(totalData, limit)
 	if ok == false {
-		return emptyData, http.StatusInternalServerError, "Internal server error", true
+		return emptyData, http.StatusInternalServerError, "Internal server error [2]", true
 	}
 
 	pageLimit, ok := getPageQueryAsPage(newPage, limit)
 	if ok == false {
-		return emptyData, http.StatusInternalServerError, "Internal server error", true
+		return emptyData, http.StatusInternalServerError, "Internal server error [3]", true
 	}
 
 	fmt.Printf("newLimit, %v\n", pageLimit);
+
+	sortBy := ginContext.Query("sort_by")
+	orderBy := ginContext.Query("order_by")
 
 	var dataQuery string
 	dataQuery += database.Query(`SELECT employee.id, employee.name, employee.rate,`)
@@ -191,7 +204,7 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	dataQuery += database.Query(`AS total_activity`)
 	// dataQuery += database.Query(`GROUP BY employee.id`)
 	dataQuery += database.Query(`FROM employee`)
-	if querySearch == "" {
+	if querySearch == "" && orderBy == "default" {
 		dataQuery += database.Query(`WHERE id > `+ pageLimit)
 		dataQuery += database.Query(`AND employee.expired != 1`)
 	} else {
@@ -200,15 +213,21 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	dataQuery += database.Query(`AND ( LOWER(name) LIKE LOWER('%`+ querySearch +`%')`)
 	dataQuery += database.Query(`OR LOWER(rate) LIKE LOWER('%`+ querySearch +`%') )`)
 
+	if orderBy != "default" {
+		dataQuery += database.Query("ORDER BY employee."+ orderBy +" "+ sortBy);	
+	}
+
 	if totalActivitySearchOk {
 		dataQuery += database.Query(`GROUP BY employee.id`)
 		dataQuery += database.Query(`HAVING total_activity = `+ totalActivitySearch)	
 	}
 
 	dataQuery += database.Query(`LIMIT `+ limit)
-	if querySearch != "" {
+	if querySearch != "" || orderBy != "default" {
 		dataQuery += database.Query(`OFFSET `+ pageLimit)
 	}
+
+	fmt.Printf("Query: %v\n", dataQuery)
 
 	result["data"] = database.QueryExec(db, dataQuery)
 

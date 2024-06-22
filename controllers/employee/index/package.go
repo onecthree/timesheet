@@ -15,12 +15,32 @@ func isGetQueryValid( ginContext *gin.Context ) bool {
 		return false
 	}
 
+	pageCast, err := strconv.ParseUint(page, 10, 64)
+	if err != nil {
+		return false
+	}
+
+	if pageCast < 1 {
+		return false
+	}
+
+
 	limit, exists := ginContext.GetQuery("limit")
 	if exists == false || len(limit) == 0 || functions.IsNumeric(limit) == false {
 		return false
 	}
 
 	if limit != "10" && limit != "25" && limit != "50" {
+		return false
+	}
+
+	order_by, exists := ginContext.GetQuery("order_by")
+	if exists == false || len(order_by) == 0 || (order_by != "default" && order_by != "name" && order_by != "rate" && order_by != "total_activity") {
+		return false
+	}
+
+	sort_by, exists := ginContext.GetQuery("sort_by")
+	if exists == false || len(sort_by) == 0 || (sort_by != "asc" && sort_by != "desc") {
 		return false
 	}
 

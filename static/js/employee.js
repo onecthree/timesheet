@@ -18,16 +18,57 @@ const appFloat =
             }, 400);
         }, 300);
     },
-    confirmDelete: function( name )
+    processFailed: function()
+    {
+        setTimeout( function() {
+            $("#float-alert div").hide("fade", 500);
+            setTimeout( function() {
+                $("#float-alert .alert-button .button-danger").remove();
+                $("#float-alert .alert-desc").html("Terjadi kesalahan [405]. Error kode: 405-123.");
+                $("#float-alert .alert-button .button-primary").html("Tutup");
+                $("#float-alert div").show("fade", 500);
+            }, 500);
+        }, 1000);
+    },
+    processSuccess: function()
+    {
+        setTimeout( function() {
+            $("#float-alert div").hide("fade", 500);
+            setTimeout( function() {
+                    $("#float-alert").css({ alignItems: "center" });
+                    $("#float-alert").html(`<span class="d-none">Data berhasil dihapus</a>`);
+                    $("#float-alert span").show("fade", 500);
+                    setTimeout( function() {
+                        appFloat.closeAlert();
+                        setTimeout( function()
+                        {
+                            $("#float-alert").css({ alignItems: "normal" });
+                        }, 1000);
+                    }, 1500);
+            }, 500);
+        }, 1000);
+    },
+    processDelete: function()
+    {
+        $("#appAlertConfirmButton span").hide("fade", 300);
+        setTimeout( function()
+        {
+            $("#appAlertConfirmButton span").html(`<div class="spinner"></div>`);
+            $("#appAlertConfirmButton span").show("fade", 300);
+
+            appFloat.processSuccess();
+        }, 300);
+    },
+    confirmDelete: function( name, totalActivity )
     {
         const html =
         `
-            <div class="alert-desc">Hapus keryawan "${name}"?</div>
+            <div class="alert-desc">${name} ${totalActivity ? "memiliki "+totalActivity : "tidak memiliki"} kegiatan, lanjut hapus?</div>
             <div class="alert-button">
-                <div>&nbsp;</div>
+                <div class="empty">&nbsp;</div>
                 <div class="alert-same">
-                    <button class="float-button button-danger" onclick="javascript:appFloat.closeAlert();">Lupakan</button>
-                    <button class="float-button button-primary">Ya, hapus</button>
+                    <button class="float-button button-primary" onclick="javascript:appFloat.closeAlert();">Lupakan</button>
+                    <button class="float-button button-danger" id="appAlertConfirmButton" onclick="javascript:appFloat.processDelete();"><span>Ya, HAPUS</span></button>
                 </div>
             </div>
         `;
@@ -122,82 +163,7 @@ const appFloat =
     }
 }
 
-const float =
-{
-    employee: function()
-    {
-        const html =
-        `
-            <div class="window-top">
-                <div>Tambah Kegiatan Baru</div>
-                <div class="close-float" onclick="javascript:hideAddActivity();"><i class="bi bi-x-lg"></i></div>
-            </div>
-            <div class="window-content">
-                <div class="date-content">
-                    <div class="date-wrap">
-                        <span class="float-title">Tanggal mulai <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Tanggal berakhir <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Jam mulai <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Jam berakhir <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="title-activity">
-                    <span class="float-title">Judul kegiatan <span class="text-danger">*</span></span>
-                    <div class="form-control">
-                        <input type="" name="">
-                        <small class="text-danger">Kolom harus terisi</small>
-                    </div>
-                </div>
-                <div class="title-project">
-                    <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
-                    <div class="form-control">
-                        <select class="form-select" aria-label="Default select example">
-                            <option value="1" selected>Pilih salah satu proyek</option>
-                            <option value="1">10</option>
-                            <option value="2">25</option>
-                            <option value="3">50</option>
-                        </select>
-                        <small class="text-danger">Kolom harus terisi</small>
-                    </div>
-                </div>
-                <div class="float-save">
-                    <span class="text-danger">* Wajib diisi</span>
-                    <span class="inline-button">
-                        <span class="float-button button-danger" onclick="javascript:hideAddActivity();">Lupakan</span>
-                        <span class="float-button button-primary">Buat kegiatan</span>
-                    </span>
-                </div>
-            </div>
-        `;
-    }
-}
-
-const string =
+const stringHelper =
 {
     number_format: function( number, delimiter = "," )
     {
@@ -254,10 +220,43 @@ const table =
     query_page: 1,
     query_limit: 10,
     query_search: "",
+    query_order_by: "name",
+    query_sort_by: "asc",
     query_total_activity: false,
     min_page: 1,
     max_page: 1,
     disable_page: false,
+    order: function( context, order_by, sort_by )
+    {
+        $(`#nameSort`).attr("onclick", `javascript:table.order(this, 'name', 'desc')`)
+        $(`#rateSort`).attr("onclick", `javascript:table.order(this, 'rate', 'desc')`)
+        $(`#totalActivitySort`).attr("onclick", `javascript:table.order(this, 'total_activity', 'desc')`)
+        $(`.filter-sort`).html(`<i class="bi bi-sort-down-alt"></i>`);
+
+        switch( sort_by )
+        {
+            case "asc":
+                $(context).attr("onclick", `javascript:table.order(this, '${order_by}', 'desc')`)
+                $(context).html(`<i class="bi bi-sort-down-alt"></i>`);
+            break;
+            case "desc":
+                $(context).attr("onclick", `javascript:table.order(this, '${order_by}', 'asc')`)
+                $(context).html(`<i class="bi bi-sort-up-alt"></i>`);
+            break;
+        }
+
+        switch( order_by )
+        {
+            case "total_activity":
+
+            break;
+            default:
+                table.query_order_by = order_by;
+                table.query_sort_by = sort_by;
+                table.targetPage(table.query_page, table.query_limit, table.query_search);
+            break;
+        }
+    },
     redraw: function()
     {
         const button = $("#redrawIcon");
@@ -280,7 +279,7 @@ const table =
             table.disable_page = true;
 
             if( page > table.max_page )
-                page = table.max_page;
+                page = table.max_page ? table.max_page : 1;
 
             table.query_page = page;
             table.load(page, limit, function( response )
@@ -333,7 +332,7 @@ const table =
     },
     setPagination: function ( target, limit )
     {
-        urlBrowserBar.set(`/employee?page=${target}&limit=${limit}` + ( table.query_search !== "" ? `&search=${table.query_search}` : "" ));
+        urlBrowserBar.set(`/employee?page=${target}&limit=${limit}` + ( table.query_search !== "" ? `&search=${table.query_search}` : "" ) +`&order_by=${table.query_order_by}&sort_by=${table.query_sort_by}`);
         paginate.clear();
         const pages = table.pageOrder(target, table.max_page, limit);
         pages.map( page => {
@@ -394,7 +393,7 @@ const table =
         table.query_page = page;
         
         $.ajax({
-            url: `/employee/list?page=${page}&limit=${limit}&search=${table.query_search}`,
+            url: `/employee/list?page=${page}&limit=${limit}&search=${table.query_search}&order_by=${table.query_order_by}&sort_by=${table.query_sort_by}`,
             type: "POST",
             headers: { "X-CSRF-Token": G_csrfToken },
             statusCode:
@@ -444,20 +443,40 @@ const table =
         switch( parseInt(response.total) )
         {
             case 0:
-                $(".table-body-placeholder").hide();
-                $(".cards-message-info").show();
-                $(".table-body").append(`
-                    <tr><td colspan="4"></td></tr>
-                    <tr><td colspan="4"></td></tr>
-                    <tr><td colspan="4"></td></tr>
-                    <tr><td colspan="4"></td></tr>
-                    <tr><td colspan="4" style="text-align: center;">Tidak menemukan data untuk pencarian "${table.query_search}"</td></tr>
-                    <tr><td colspan="4"></td></tr>
-                    <tr><td colspan="4"></td></tr>
-                    <tr><td colspan="4"></td></tr>
-                    <tr><td colspan="4"></td></tr>
-                    <tr><td colspan="4"></td></tr>
-                `);
+                if( (table.query_search).length )
+                {
+                    $(".table-body-placeholder").hide();
+                    $(".cards-message-info").show();
+                    $(".table-body").append(`
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4" style="text-align: center;">Tidak menemukan data untuk pencarian "${table.query_search}"</td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                    `);
+                }
+                else
+                {
+                    $(".table-body-placeholder").hide();
+                    $(".cards-message-info").show();
+                    $(".table-body").append(`
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4" style="text-align: center;">Belum ada karyawan</td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                        <tr><td colspan="4"></td></tr>
+                    `);
+                }
             break;
             default:
                 let data = response.data;
@@ -470,12 +489,12 @@ const table =
                     let row = `
                     	<tr>
 	                        <td>${data[i].name}</td>
-	                        <td>Rp${string.number_format((data[i].rate).replace(/\..*$/g, ""))},-</td>
+	                        <td>Rp${stringHelper.number_format((data[i].rate).replace(/\..*$/g, ""))},-</td>
 	                        <td>${totalActivity === 0 ? 'Belum ada': totalActivity} kegiatan</td>
 	                        <td>
 	                            <div class="action-table">
 	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmEdit('${data[i].name}');"><i class="bi bi-pencil-square edit"></i></span>
-	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmDelete('${data[i].name}');"><i class="bi bi-trash-fill delete"></i></span>
+	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmDelete('${data[i].name}', ${totalActivity});"><i class="bi bi-trash-fill delete"></i></span>
 	                            </div>
 	                        </td>
 	                    </tr>
