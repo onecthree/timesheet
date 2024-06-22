@@ -1,7 +1,7 @@
 package database
 
 import(
-	"fmt"
+	// "fmt"
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 )
@@ -45,8 +45,8 @@ func QueryExec( db *sql.DB, query string ) []map[string]string {
 			} else {
 				value = string(col)
 			}
-			fmt.Println(columns[i], ": ", value)
-
+			
+			// fmt.Println(columns[i], ": ", value)
 			// result = append(result, columns[i])
 			// result = append(result, value)
 

@@ -215,7 +215,7 @@
             color: rgba(0, 0, 0, .4);
         }
 
-        #search-text
+        #searchQuery
         {
             font-size: 16px;
             border: 0px solid transparent;
@@ -235,6 +235,7 @@
             box-shadow: 1px 1px 5px rgba(0, 0, 0, .15);
             height: 45px;
             width: 45px;
+            cursor: pointer;
         }
 
         .filter-button .bi-filter
@@ -588,9 +589,58 @@
             overflow: hidden;
         }
 
+        td {
+            height: 27px;
+        }
+
         tr:nth-child(even)
         {
           background: rgba(0, 0, 0, .05);
+        }
+
+        @-webkit-keyframes rotating /* Safari and Chrome */ {
+            from {
+                -webkit-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            to {
+                -webkit-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes rotating {
+            from {
+                -ms-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -webkit-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            to {
+                -ms-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -webkit-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        .rotating {
+            -webkit-animation: rotating .8s ease infinite;
+            -moz-animation: rotating .8s ease infinite;
+            -ms-animation: rotating .8s ease infinite;
+            -o-animation: rotating .8s ease infinite;
+            animation: rotating .8s ease infinite;
+        }
+
+        #redrawIcon
+        {
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
     </style>
 </head>
@@ -714,11 +764,11 @@
                             <div id="search">
                                 <i class="bi bi-search search-icon"></i>
                                 <form>
-                                    <input type="text" id="search-text" name="keysearch">
+                                    <input type="text" id="searchQuery" name="keysearch" oninput="javascript:onSearch(this.value);">
                                 </form>
                             </div>
-                            <div class="filter-button">
-                                <i class="bi bi-filter"></i>
+                            <div class="filter-button" onclick="javascript:table.redraw();">
+                                <span id="redrawIcon"><i class="bi bi-arrow-clockwise"></i></span>
                             </div>
                         </div>
                     </div>
@@ -858,16 +908,60 @@
         let G_csrfToken = "payment_account_bcc8df429ee9a8f472edb732c3174a19";
         table.query_page = parseInt({{ .currentPage }}); // current page
         table.query_limit = parseInt({{ .currentLimit }}); // current page
+        table.query_search = {{ .currentSearch }}; // current page
         table.max_page = parseInt({{ .maxPage }}); // pagination count
+
+        let G_onRoleSearchState = 0;
+        let G_onRoleSearchKeywords = [];
+        let G_onKeypress = false;
+        let G_onRoleSelected = false;
+
+        function onSearch( keyword )
+        {
+                G_onRoleSearchState += 1;
+                setTimeout(() => {
+                    if( G_onRoleSearchState === 1 )
+                    {
+                        // console.log(keyword);
+                        table.query_search = keyword;
+                        table.targetPage(table.query_page, table.query_limit, table.query_search);
+                    }
+                    G_onRoleSearchState -= 1;
+                }, 700); 
+        }
 
         $(document).ready( function()
         {
+            // $("#searchQuery").on("keypress keyup", function()
+            // {
+            //     G_onKeypress = true;
+            // });
+
+            // $("html").on("click", function()
+            // {
+            //     G_onKeypress = false;
+            // });
+
+            // $("#searchQuery").on("focusout", function()
+            // {
+            //     setTimeout(() => {
+            //         if(! G_onKeypress )
+            //         {
+            //             console.log("asdasd", G_onKeypress);
+            //         }
+
+            //         G_onKeypress = false;
+            //     }, 400);
+            // });
+
             $("#onTableLimitSelect").on("change", function()
             {
-                table.targetPage(table.query_page, parseInt(this.value));
+                const limit = parseInt(this.value);
+                table.query_limit = limit;
+                table.targetPage(table.query_page, limit);
             });
 
-            table.targetPage(table.query_page, table.query_limit);
+            table.targetPage(table.query_page, table.query_limit, table.query_search);
         });
     </script>
 </body>

@@ -55,11 +55,17 @@ func main() {
   		if isControllersFailed {
 			c.Redirect(httpStatusCode, "/employee?page=1&limit=10")
   		} else {
+  			querySearch, ok := c.GetQuery("search")
+  			if ok == false {
+  				querySearch = ""
+  			}
+
 	  		c.HTML(http.StatusOK, "employee.html", gin.H{
 	  			"appName": appName,
 	  			"maxPage": data[0]["maxPage"],
 	  			"currentPage": c.Query("page"),
 	  			"currentLimit": c.Query("limit"),
+	  			"currentSearch": querySearch,
 	  		})
   		}
   	})
@@ -96,11 +102,22 @@ func main() {
 				"message": message,
 			})	
   		} else {
+  			total := "0"
+  			if len(data["total"]) > 0 {
+  				total = data["total"][0]["total"]
+  			}
+
+  			maxPage := "0"
+  			if len(data["maxPage"]) > 0 {
+  				maxPage = data["maxPage"][0]["maxPage"]
+  			}
+
 	  		c.JSON(httpStatusCode, gin.H{
 	  			"success": true,
 	  			"message": message,
 				"data": data["data"],
-				"total": data["total"][0]["total"],
+				"total": total,
+				"maxPage": maxPage,
 			})	
   		}
   	})

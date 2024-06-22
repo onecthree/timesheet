@@ -38,7 +38,7 @@ const paginate =
     },
     append: function( page )
     {
-        $(".pagination").append(`<button class="btn btn-secondary btn-current" onclick="javascript:table.targetPage(${page});">${page}</button>`);
+        $(".pagination").append(`<button class="btn btn-secondary btn-current" onclick="javascript:table.targetPage(${page}, table.query_limit);">${page}</button>`);
     },
     current: function( page )
     {
@@ -53,6 +53,9 @@ const paginate =
 const table =
 {
     query_page: 1,
+    query_limit: 10,
+    query_search: "",
+    query_total_activity: false,
     min_page: 1,
     max_page: 1,
     disable_page: false,
@@ -62,7 +65,7 @@ const table =
         button.addClass("rotating");        
 
         setTimeout(() => {
-            table.targetPage(table.query_page, function()
+            table.targetPage(table.query_page, table.query_limit, function()
             {
                 button.on("animationiteration webkitAnimationIteration", function() {
                     $(this).removeClass("rotating");
@@ -77,14 +80,34 @@ const table =
         {
             table.disable_page = true;
 
-            urlBrowserBar.set(`/employee?page=${page}&limit=${limit}`);
-
             if( page > table.max_page )
                 page = table.max_page;
 
             table.query_page = page;
-            table.setPagination(page, limit);
-            table.load(page, limit, callback);
+            table.load(page, limit, function( response )
+            {
+                page = parseInt(page);
+                limit = parseInt(limit);
+                total = parseInt(response.total);
+
+                for( ;; )
+                {
+                    if( ((page-1) * limit) <= total )
+                    {
+                        console.log(page, limit, total);
+                        break;
+                    }
+
+                    page -= 1
+                }
+
+                table.query_page = page;
+                table.query_limit = limit;
+                table.setPagination(page, limit);
+
+                if( typeof callback === "function" )
+                    callback();
+            });
             
             $(".btn-before-page, .btn-next-page").removeClass("disabled");
 
@@ -98,19 +121,20 @@ const table =
     beforePage: function()
     {
         if( table.query_page <= 1 )
-            table.targetPage(1);
+            table.targetPage(1, table.query_limit);
         else
-            table.targetPage(table.query_page - 1);
+            table.targetPage(table.query_page - 1, table.query_limit);
     },
     nextPage: function()
     {
         if( table.query_page >= table.max_page )
-            table.targetPage(table.max_page);
+            table.targetPage(table.max_page, table.query_limit);
         else
-            table.targetPage(table.query_page + 1);
+            table.targetPage(table.query_page + 1, table.query_limit);
     },
     setPagination: function ( target, limit )
     {
+        urlBrowserBar.set(`/employee?page=${target}&limit=${limit}` + ( table.query_search !== "" ? `&search=${table.query_search}` : "" ));
         paginate.clear();
         const pages = table.pageOrder(target, table.max_page, limit);
         pages.map( page => {
@@ -171,7 +195,7 @@ const table =
         table.query_page = page;
         
         $.ajax({
-            url: `/employee/list?page=${page}&limit=${limit}`,
+            url: `/employee/list?page=${page}&limit=${limit}&search=${table.query_search}`,
             type: "POST",
             headers: { "X-CSRF-Token": G_csrfToken },
             statusCode:
@@ -180,6 +204,7 @@ const table =
                 {
                     G_csrfToken = xhr.getResponseHeader("X-CSRF-Token");
                     setTimeout(() => {
+                        table.max_page = response.maxPage;
                         table.clear(response, callback);
                         $(`.page`).removeClass("disabled");
                         $(`.page-${page}`).addClass("disabled");
@@ -222,6 +247,18 @@ const table =
             case 0:
                 $(".table-body-placeholder").hide();
                 $(".cards-message-info").show();
+                $(".table-body").append(`
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4" style="text-align: center;">Tidak menemukan data untuk pencarian "${table.query_search}"</td></tr>
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4"></td></tr>
+                    <tr><td colspan="4"></td></tr>
+                `);
             break;
             default:
                 let data = response.data;
@@ -266,6 +303,6 @@ const table =
         table.disable_page = false;
 
         if( callback )
-            callback();
+            callback(response);
     }
 }
