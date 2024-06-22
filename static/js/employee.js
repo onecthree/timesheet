@@ -18,13 +18,31 @@ const appFloat =
             }, 400);
         }, 300);
     },
-    processFailed: function()
+    closeApp: function()
+    {
+        $("#float-app").hide("fade", {
+            direction: "top"
+        }, 300);
+        
+        setTimeout( function()
+        {
+            $("#float-container").animate({
+                opacity: 0,
+            }, 200);
+
+            setTimeout( function()
+            {
+                $("#float-container").hide();
+            }, 400);
+        }, 300);
+    },
+    processFailed: function( errorCode )
     {
         setTimeout( function() {
             $("#float-alert div").hide("fade", 500);
             setTimeout( function() {
                 $("#float-alert .alert-button .button-danger").remove();
-                $("#float-alert .alert-desc").html("Terjadi kesalahan [405]. Error kode: 405-123.");
+                $("#float-alert .alert-desc").html(`Terjadi kesalahan [${errorCode}]. Error kode: ${errorCode}-111.`);
                 $("#float-alert .alert-button .button-primary").html("Tutup");
                 $("#float-alert div").show("fade", 500);
             }, 500);
@@ -48,18 +66,43 @@ const appFloat =
             }, 500);
         }, 1000);
     },
-    processDelete: function()
+    processDelete: function( id )
     {
+        $("#float-alert .alert-button .button-primary").addClass("disabled");
+        $("#float-alert .alert-button .button-primary").attr("disabled", true);
         $("#appAlertConfirmButton span").hide("fade", 300);
         setTimeout( function()
         {
             $("#appAlertConfirmButton span").html(`<div class="spinner"></div>`);
             $("#appAlertConfirmButton span").show("fade", 300);
 
-            appFloat.processSuccess();
+            // appFloat.processSuccess();
+            $.ajax({
+                url: `/employee/delete?id=${id}`,
+                type: "POST",
+                headers: { "X-CSRF-Token": G_csrfToken },
+                statusCode:
+                {
+                    200: ( response, status, xhr ) =>
+                    {
+                        appFloat.processSuccess();
+                        setTimeout( function() {
+                            javascript:table.redraw();
+                        }, 3000);
+                    },
+                    400: ( response ) =>
+                    {
+                        appFloat.processFailed(400);
+                    },
+                    404: ( response ) =>
+                    {
+                        appFloat.processFailed(404);
+                    },
+                }
+            });
         }, 300);
     },
-    confirmDelete: function( name, totalActivity )
+    confirmDelete: function( id, name, totalActivity )
     {
         const html =
         `
@@ -68,7 +111,7 @@ const appFloat =
                 <div class="empty">&nbsp;</div>
                 <div class="alert-same">
                     <button class="float-button button-primary" onclick="javascript:appFloat.closeAlert();">Lupakan</button>
-                    <button class="float-button button-danger" id="appAlertConfirmButton" onclick="javascript:appFloat.processDelete();"><span>Ya, HAPUS</span></button>
+                    <button class="float-button button-danger" id="appAlertConfirmButton" onclick="javascript:appFloat.processDelete(${id});"><span>Ya, HAPUS</span></button>
                 </div>
             </div>
         `;
@@ -88,66 +131,101 @@ const appFloat =
     },
     confirmEdit: function( name )
     {
+        // const htmlx =
+        // `
+        //     <div class="window-top">
+        //         <div>Tambah Kegiatan Baru</div>
+        //         <div class="close-float" onclick="javascript:hideAddActivity();"><i class="bi bi-x-lg"></i></div>
+        //     </div>
+        //     <div class="window-content">
+        //         <div class="date-content">
+        //             <div class="date-wrap">
+        //                 <span class="float-title">Tanggal mulai <span class="text-danger">*</span></span>
+        //                 <div class="datetime-target">
+        //                     <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
+        //                     <span class="text-danger text-small">Kolom harus terisi</span>
+        //                 </div>
+        //             </div>
+
+        //             <div class="date-wrap">
+        //                 <span class="float-title">Tanggal berakhir <span class="text-danger">*</span></span>
+        //                 <div class="datetime-target">
+        //                     <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
+        //                     <span class="text-danger text-small">Kolom harus terisi</span>
+        //                 </div>
+        //             </div>
+
+        //             <div class="date-wrap">
+        //                 <span class="float-title">Jam mulai <span class="text-danger">*</span></span>
+        //                 <div class="datetime-target">
+        //                     <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
+        //                     <span class="text-danger text-small">Kolom harus terisi</span>
+        //                 </div>
+        //             </div>
+
+        //             <div class="date-wrap">
+        //                 <span class="float-title">Jam berakhir <span class="text-danger">*</span></span>
+        //                 <div class="datetime-target">
+        //                     <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
+        //                     <span class="text-danger text-small">Kolom harus terisi</span>
+        //                 </div>
+        //             </div>
+        //         </div>
+        //         <div class="title-activity">
+        //             <span class="float-title">Judul kegiatan <span class="text-danger">*</span></span>
+        //             <div class="form-control">
+        //                 <input type="" name="">
+        //                 <small class="text-danger">Kolom harus terisi</small>
+        //             </div>
+        //         </div>
+        //         <div class="title-project">
+        //             <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
+        //             <div class="form-control">
+        //                 <select class="form-select" aria-label="Default select example">
+        //                     <option value="1" selected>Pilih salah satu proyek</option>
+        //                     <option value="1">10</option>
+        //                     <option value="2">25</option>
+        //                     <option value="3">50</option>
+        //                 </select>
+        //                 <small class="text-danger">Kolom harus terisi</small>
+        //             </div>
+        //         </div>
+        //         <div class="float-save">
+        //             <span class="text-danger">* Wajib diisi</span>
+        //             <span class="inline-button">
+        //                 <span class="float-button button-danger" onclick="javascript:hideAddActivity();">Lupakan</span>
+        //                 <span class="float-button button-primary">Buat kegiatan</span>
+        //             </span>
+        //         </div>
+        //     </div>
+        // `;
+
         const html =
         `
             <div class="window-top">
-                <div>Tambah Kegiatan Baru</div>
-                <div class="close-float" onclick="javascript:hideAddActivity();"><i class="bi bi-x-lg"></i></div>
+                <div>Tambah Karyawan Baru</div>
+                <div class="close-float" onclick="javascript:appFloat.closeApp();"><i class="bi bi-x-lg"></i></div>
             </div>
             <div class="window-content">
-                <div class="date-content">
-                    <div class="date-wrap">
-                        <span class="float-title">Tanggal mulai <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Tanggal berakhir <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Jam mulai <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Jam berakhir <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-                </div>
                 <div class="title-activity">
-                    <span class="float-title">Judul kegiatan <span class="text-danger">*</span></span>
+                    <span class="float-title">Nama karyawan <span class="text-danger">*</span></span>
                     <div class="form-control">
                         <input type="" name="">
                         <small class="text-danger">Kolom harus terisi</small>
                     </div>
                 </div>
                 <div class="title-project">
-                    <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
+                    <div class="float-title">Rate <span class="text-danger">*</span></div>
                     <div class="form-control">
-                        <select class="form-select" aria-label="Default select example">
-                            <option value="1" selected>Pilih salah satu proyek</option>
-                            <option value="1">10</option>
-                            <option value="2">25</option>
-                            <option value="3">50</option>
-                        </select>
-                        <small class="text-danger">Kolom harus terisi</small>
+                        <div class="rate-input-bar">
+                            <span class="rate-input-bar-rp">Rp</span>
+                            <div><input type="" name="" class="input-employee-rate"></div>
+                            <span class="rate-input-bar-hour">/ Jam</span>
+                        </div>
+                        <small class="text-danger">asda</small>
                     </div>
                 </div>
-                <div class="float-save">
+                <div class="float-save-employee">
                     <span class="text-danger">* Wajib diisi</span>
                     <span class="inline-button">
                         <span class="float-button button-danger" onclick="javascript:hideAddActivity();">Lupakan</span>
@@ -157,9 +235,18 @@ const appFloat =
             </div>
         `;
 
-        console.log(html);
+        $("#float-container").show();
+        $("#float-container").animate({
+            opacity: 1,
+        }, 150);
 
-        $("#float-app").html(html);
+        setTimeout( function()
+        {
+            $("#float-app").html(html);
+            $("#float-app").show("fade", {
+                direction: "top"
+            }, 300);
+        }, 250);
     }
 }
 
@@ -494,7 +581,7 @@ const table =
 	                        <td>
 	                            <div class="action-table">
 	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmEdit('${data[i].name}');"><i class="bi bi-pencil-square edit"></i></span>
-	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmDelete('${data[i].name}', ${totalActivity});"><i class="bi bi-trash-fill delete"></i></span>
+	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmDelete(${data[i].id}, '${data[i].name}', ${totalActivity});"><i class="bi bi-trash-fill delete"></i></span>
 	                            </div>
 	                        </td>
 	                    </tr>

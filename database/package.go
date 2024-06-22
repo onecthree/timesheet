@@ -46,10 +46,6 @@ func QueryExec( db *sql.DB, query string ) []map[string]string {
 				value = string(col)
 			}
 			
-			// fmt.Println(columns[i], ": ", value)
-			// result = append(result, columns[i])
-			// result = append(result, value)
-
 			pair[columns[i]] = value;
 		}
 

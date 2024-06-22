@@ -10,6 +10,8 @@ import(
 	// "github.com/onecthree/timesheet/database"
 	controllersEmployeeIndex "github.com/onecthree/timesheet/controllers/employee/index"
 	controllersEmployeeList "github.com/onecthree/timesheet/controllers/employee/list"
+	controllersEmployeeDelete "github.com/onecthree/timesheet/controllers/employee/delete"
+
 	controllersProjectList "github.com/onecthree/timesheet/controllers/project/list"
 	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
@@ -122,6 +124,15 @@ func main() {
 				"maxPage": maxPage,
 			})	
   		}
+  	})
+
+  	app.POST("/employee/delete", func( c *gin.Context ) {
+  		httpStatusCode, message, _ := controllersEmployeeDelete.PostResponse(c, database)
+
+  		c.JSON(httpStatusCode, gin.H{
+			"success": false,
+			"message": message,
+		})	
   	})
   	/** Application Route }} **/
 

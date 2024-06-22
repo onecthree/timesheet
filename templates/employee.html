@@ -496,6 +496,16 @@
             align-items: center;
         }
 
+        .float-save-employee
+        {
+            margin-top: 80px;
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .inline-button
         {
             display: flex;
@@ -561,6 +571,46 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
+/*            background: red;*/
+        }
+
+        .rate-input-bar
+        {
+            border: 1px solid rgba(0, 0, 0, .2);
+            border-radius: 5px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+            height: 55px;
+            align-items: center;
+        }
+
+        .input-employee-rate
+        {
+            border: 0px solid transparent;
+            font-size: 15.5px;
+            padding: 12px;
+            padding-left: 18px;
+            width: 850px;
+        }
+
+        .rate-input-bar-rp
+        {
+            display: flex;
+            justify-content: flex-end;
+            color: rgba(0, 0, 0, .6);
+            width: 40px;
+            margin-left: 10px;
+        }
+
+        .rate-input-bar-hour
+        {
+            display: flex;
+            justify-content: flex-end;
+            color: rgba(0, 0, 0, .6);
+            width: 100px;
+            margin-right: 10px;
         }
 
         .text-small
@@ -830,7 +880,7 @@
                     <div class="middle-section">
                         <div class="vertical-space">
                             <span class="title-bold">Daftar Karyawan</span>
-                            <a href="/setting" class="button" onclick="javascript:showAddActivity();"><i class="bi bi-plus-circle-fill"></i> Tambah karyawan</a>
+                            <a href="javascript:void(0);" onclick="javascript:appFloat.confirmEdit();" class="button" onclick="javascript:showAddActivity();"><i class="bi bi-plus-circle-fill"></i> Tambah karyawan</a>
                         </div>
                         <div class="vertical-space">
                             <div class="row-show">
