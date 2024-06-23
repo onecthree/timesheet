@@ -1,10 +1,19 @@
 package functions
 
 import(
-	"strconv"
+    "regexp"
 )
 
 func IsNumeric(s string) bool {
-    _, err := strconv.ParseUint(s, 10, 64)
-    return err == nil
+    sNumber, err := regexp.Compile(`[^0-9]+`)
+    if err != nil {
+        panic(err)
+        return false
+    }
+
+    if len(sNumber.FindAllString(s, 1)) > 0 {
+        return false
+    }
+
+    return true;
 }

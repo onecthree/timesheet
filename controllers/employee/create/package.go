@@ -1,14 +1,14 @@
 package create
 
 import(
-	"fmt"
+	// "fmt"
 	// "strconv"
 	"regexp"
 	"net/http"
 	"database/sql"
 	"github.com/gin-gonic/gin"
 	"github.com/onecthree/timesheet/database"
-	"github.com/onecthree/timesheet/functions"
+	// "github.com/onecthree/timesheet/functions"
 )
 
 type Employee struct {
@@ -29,7 +29,7 @@ func isPostQueryValid( ginContext *gin.Context ) bool {
 		return false
 	}
 
-	if len(employee.Rate) == 0 || functions.IsNumeric(employee.Rate) == false {
+	if len(employee.Rate) == 0 {
 		return false
 	}
 
@@ -37,29 +37,37 @@ func isPostQueryValid( ginContext *gin.Context ) bool {
 		return false
 	}
 
-    fmt.Printf("das6\n")
+    // fmt.Printf("das6\n")
     nameRegex, err := regexp.Compile(`[^a-zA-Z0-9\s+]`)
     if err != nil {
     	return false
     }
 
-    fmt.Printf("das7 -%v-\n", employee.Name)
+    // fmt.Printf("das7 -%v-\n", employee.Name)
     if len(nameRegex.FindAllString(employee.Name, 1)) > 0 {
     	return false
     }
 
-    fmt.Printf("das8\n")
+    if len(employee.Name) < 6 || len(employee.Name) > 30 {
+    	return false
+    }
+
+    // fmt.Printf("das8\n")
     rateRegex, err := regexp.Compile(`^(0|[1-9][0-9]*)$`)
     if err != nil {
     	return false
     }
 
-    fmt.Printf("das9 -%v-\n", employee.Rate)
+    // fmt.Printf("das9 -%v-\n", employee.Rate)
     if len(rateRegex.FindAllString(employee.Rate, 1)) < 1 {
     	return false
     }
 
-    fmt.Printf("das10\n")
+    if len(employee.Rate) > 13 {
+    	return false
+    }
+
+    // fmt.Printf("das10\n")
 
 	return true
 }

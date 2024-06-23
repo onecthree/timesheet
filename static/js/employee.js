@@ -69,7 +69,10 @@ const appFloat =
     processDelete: function( id )
     {
         $("#float-alert .alert-button .button-primary").addClass("disabled");
+        $("#float-alert .alert-button .button-danger").addClass("disabled");
         $("#float-alert .alert-button .button-primary").attr("disabled", true);
+        $("#float-alert .alert-button .button-danger").attr("disabled", true);
+
         $("#appAlertConfirmButton span").hide("fade", 300);
         setTimeout( function()
         {
@@ -136,20 +139,138 @@ const appFloat =
     processCreateFailed: function( errorCode )
     {
         setTimeout( function() {
-            alert(errorCode);
+            // alert(errorCode);
+
+            $("#float-app .inline-button .button-danger").removeClass("disabled");
+            $("#float-app .inline-button .button-primary").removeClass("disabled");
+            $("#float-app .inline-button .button-danger").attr("disabled", false);
+            $("#float-app .inline-button .button-primary").attr("disabled", false);
+
+
+            $("#float-app .inline-button .button-primary span").hide("fade", 300);
+
+            setTimeout(function(){
+                $("#float-app .inline-button .button-primary span").html(`Tambah Karyawan`);
+                $("#float-app .inline-button .button-primary span").show("fade", 300);
+
+                const nameInput = $("input[name=name]").val();
+                const rateInput = $("input[name=rate]").val().replace(/\,/g, "");
+
+                if( !nameInput.length )
+                    return $("#nameNotify").html("Kolom harus terisi");
+
+                if( nameInput.match(/[^a-zA-Z0-9\s+]/g) )
+                    return $("#nameNotify").html("Isi dengan huruf, angka, atau spasi");
+
+                if( nameInput.length < 6 || nameInput.length > 30 )
+                    return $("#nameNotify").html("Kolom harus berisi 6-30 karakter");
+
+                if( !rateInput.length )
+                    return $("#rateNotify").html("Kolom harus terisi");
+
+                if( !rateInput.match(/^(0|[1-9][0-9]*)$/g) )
+                    return $("#rateNotify").html("Nilai tidak mendukung mata uang");
+
+                if( rateInput.length > 13 )
+                    return $("#rateNotify").html("Hanya mencakup maksimum nominal hingga 9,999,999,999,999");
+            }, 300);
+
         }, 1000);
-    },
+    },  
     processCreateSuccess: function()
     {
+        const loading = 
+        `
+            <div class="app-float-main">
+                <div class="success-checkmark">
+                    <div class="check-icon">
+                        <span class="icon-line line-tip"></span>
+                        <span class="icon-line line-long"></span>
+                        <div class="icon-circle"></div>
+                        <div class="icon-fix"></div>
+                    </div>
+                </div>
+                <div class="app-pop-title">Berhasil</div>
+                <div class="app-pop-desc">Menambahkan karyawan baru</div>
+            </div>
+        `;
+
+
+        $("#float-app .main-float").hide("fade", 300);
+
         setTimeout( function() {
-            alert("data terbuat");
-        }, 1000);
+
+            $("#float-app").html(`<div class="checked-target"></div>`);
+
+            $("#float-app").css({
+                display: "flex",
+                justifyContent: "center",
+                alignItems: "center",
+            });
+
+            $("#float-app").animate({
+                height: "300px",
+                width: "500px",
+            }, 500);
+
+            $("#float-app .checked-target").hide();
+            $("#float-app .checked-target").html(loading);
+            $("#float-app .checked-target").show("fade", 500);
+
+            $("#float-app .inline-button .button-danger").removeClass("disabled");
+            $("#float-app .inline-button .button-primary").removeClass("disabled");
+            $("#float-app .inline-button .button-danger").attr("disabled", false);
+            $("#float-app .inline-button .button-primary").attr("disabled", false);
+
+            setTimeout(function()
+            {
+                setTimeout(function()
+                {
+                    appFloat.closeApp();
+                    setTimeout( function()
+                    {
+                        $("#float-app").html("");
+
+                        $("#float-app").css({
+                            height: "560px",
+                            width: "1000px",
+                        }, 500);
+
+                        $("#float-app").css({
+                            display: "",
+                            justifyContent: "",
+                            alignItems: "",
+                        });
+
+                        $("#float-app").hide();
+                    }, 500);
+                }, 500);
+            }, 1500);
+        }, 500);
     },
     processCreate: function( name, rate )
     {
+        (function()
+        {
+            $("#nameNotify, #rateNotify").html("");
+        })();
+
+        $("#float-app .inline-button .button-danger").addClass("disabled");
+        $("#float-app .inline-button .button-primary").addClass("disabled");
+        $("#float-app .inline-button .button-danger").attr("disabled", true);
+        $("#float-app .inline-button .button-primary").attr("disabled", true);
+
+
+        $("#float-app .inline-button .button-primary span").hide("fade", 300);
+
+        setTimeout(function(){
+            $("#float-app .inline-button .button-primary span").html(`<div class="spinner"></div>`);
+            $("#float-app .inline-button .button-primary span").show("fade", 300);
+        }, 300);
+
         let dataReq = new FormData();
         dataReq.append("name", name);
-        dataReq.append("rate", rate);
+        dataReq.append("rate", rate.replace(/\,/g, ""));
 
         $.ajax({
             url: `/employee/create`,
@@ -252,35 +373,37 @@ const appFloat =
 
         const html =
         `
-            <div class="window-top">
-                <div>Tambah Karyawan Baru</div>
-                <div class="close-float" onclick="javascript:appFloat.closeApp();"><i class="bi bi-x-lg"></i></div>
-            </div>
-            <div class="window-content">
-                <div class="title-activity">
-                    <span class="float-title">Nama karyawan <span class="text-danger">*</span></span>
-                    <div class="form-control">
-                        <input type="" name="name">
-                        <small class="text-danger">Kolom harus terisi</small>
-                    </div>
+            <div class="main-float">
+                <div class="window-top">
+                    <div>Tambah Karyawan Baru</div>
+                    <div class="close-float" onclick="javascript:appFloat.closeApp();"><i class="bi bi-x-lg"></i></div>
                 </div>
-                <div class="title-project">
-                    <div class="float-title">Rate <span class="text-danger">*</span></div>
-                    <div class="form-control">
-                        <div class="rate-input-bar">
-                            <span class="rate-input-bar-rp">Rp</span>
-                            <div><input type="" name="rate" class="input-employee-rate"></div>
-                            <span class="rate-input-bar-hour">/ Jam</span>
+                <div class="window-content">
+                    <div class="title-activity">
+                        <span class="float-title">Nama karyawan <span class="text-danger">*</span></span>
+                        <div class="form-control">
+                            <input type="" name="name">
+                            <small id="nameNotify" class="text-danger"></small>
                         </div>
-                        <small class="text-danger">asda</small>
                     </div>
-                </div>
-                <div class="float-save-employee">
-                    <span class="text-danger">* Wajib diisi</span>
-                    <span class="inline-button">
-                        <span class="float-button button-danger" onclick="javascript:hideAddActivity();">Lupakan</span>
-                        <span class="float-button button-primary" onclick="javascript:appFloat.processCreate($('input[name=name]').val(), $('input[name=rate]').val())">Tambah karyawan</span>
-                    </span>
+                    <div class="title-project">
+                        <div class="float-title">Rate <span class="text-danger">*</span></div>
+                        <div class="form-control">
+                            <div class="rate-input-bar">
+                                <span class="rate-input-bar-rp">Rp</span>
+                                <div><input type="" name="rate" class="input-employee-rate" oninput="javascript:stringHelper.input_money(this);"></div>
+                                <span class="rate-input-bar-hour">/ Jam</span>
+                            </div>
+                            <small id="rateNotify" class="text-danger"></small>
+                        </div>
+                    </div>
+                    <div class="float-save-employee">
+                        <span class="text-danger">* Wajib diisi</span>
+                        <span class="inline-button">
+                            <button class="float-button button-danger" onclick="javascript:appFloat.closeApp();">Batal</button>
+                            <button class="float-button button-primary" onclick="javascript:appFloat.processCreate($('input[name=name]').val(), $('input[name=rate]').val())"><span>Tambah Karyawan</span></button>
+                        </span>
+                    </div>
                 </div>
             </div>
         `;
@@ -321,6 +444,20 @@ const stringHelper =
         }
 
         return numberModified;
+    },
+    input_money: function( context )
+    {
+        let value = context.value;
+        value = value.replace(/\,/g, "");
+
+        if( value.length )
+        {
+            if(! value.match(/^(0|[1-9][0-9]*)$/g) )
+                return $(context).val(value.substring(0, value.length - 1));
+
+        console.log("asd", value);
+            $(context).val(stringHelper.number_format(value.replace(/\,/g, "")));
+        }
     },
 };
 
