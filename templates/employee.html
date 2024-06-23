@@ -1266,6 +1266,18 @@
             //     }, 400);
             // });
 
+            $(document).on('keypress', "#createName, #createRate", function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    appFloat.processCreate($('#createName').val(), $('#createRate').val());
+                }
+            });
+
+            $(document).on('keypress', "#editName, #editRate", function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    appFloat.processEdit($("#editId").val(), $('#editName').val(), $('#editRate').val());
+                }
+            });
+
             $("#onTableLimitSelect").on("change", function()
             {
                 const limit = parseInt(this.value);

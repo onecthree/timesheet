@@ -10,6 +10,7 @@ import(
 	// "github.com/onecthree/timesheet/database"
 	controllersEmployeeIndex "github.com/onecthree/timesheet/controllers/employee/index"
 	controllersEmployeeCreate "github.com/onecthree/timesheet/controllers/employee/create"
+	controllersEmployeeEdit "github.com/onecthree/timesheet/controllers/employee/edit"
 	controllersEmployeeList "github.com/onecthree/timesheet/controllers/employee/list"
 	controllersEmployeeDelete "github.com/onecthree/timesheet/controllers/employee/delete"
 
@@ -100,6 +101,15 @@ func main() {
 
 	app.POST("/employee/create", func( c *gin.Context ) {
   		httpStatusCode, message, _ := controllersEmployeeCreate.PostResponse(c, database)
+
+  		c.JSON(httpStatusCode, gin.H{
+			"success": false,
+			"message": message,
+		})	
+  	})
+
+	app.POST("/employee/edit", func( c *gin.Context ) {
+  		httpStatusCode, message, _ := controllersEmployeeEdit.PostResponse(c, database)
 
   		c.JSON(httpStatusCode, gin.H{
 			"success": false,
