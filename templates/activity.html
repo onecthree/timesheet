@@ -10,7 +10,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js" integrity="sha512-4F1cxYdMiAW98oomSLaygEwmCnIP38pb4Kx70yQYqRwLVCs3DbRumfBq82T08g/4LJ/smbFGFpmeFlQgoDccgg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.13.2.css">
     <script src="/static/js/activity.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js" integrity="sha512-s5u/JBtkPg+Ff2WEr49/cJsod95UgLHbC00N/GglqdQuLnYhALncz8ZHiW/LxDRGduijLKzeYb7Aal9h3codZA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" integrity="sha512-LT9fy1J8pE4Cy6ijbg96UkExgOjCqcxAC7xsnv+mLJxSvftGVmmc236jlPTZXPcBRQcVOWoK1IJhb1dAjtb4lQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <title>Daftar Kegiatan - {{ .appName }}</title>
     <style>
         body
@@ -255,7 +259,7 @@
             padding: 3px;
         }
 
-        table
+        table:not(.ui-datepicker-calendar)
         {
 /*            background: green;*/
             border: 1px solid rgba(0, 0, 0, 0.1);
@@ -270,7 +274,7 @@
             padding: 10px;
         }
 
-        table tr td
+        table:not(.ui-datepicker-calendar) tr td
         {
 /*            border: 1px solid red;*/
             text-align: left;
@@ -383,7 +387,7 @@
 
         #float-app
         {
-            height: 560px;
+            height: 600px;
             width: 1000px;
             background: #ffffff;
             border-radius: 14px;
@@ -489,7 +493,7 @@
 
         .float-save
         {
-            margin-top: 20px;
+            margin-top: 30px;
             display: flex;
             flex-direction: row;
             gap: 20px;
@@ -639,35 +643,34 @@
             flex-direction: row;
         }
 
-        table
+        table:not(.ui-datepicker-calendar)
         {
 /*            border: 1px solid black;*/
             table-layout: fixed;
         }
 
-        th,
-        td
+        table:not(.ui-datepicker-calendar) th, table:not(.ui-datepicker-calendar) td
         {
 /*            border: 1px solid black;*/
             width: 100px;
             overflow: hidden;
         }
 
-        td {
+        table:not(.ui-datepicker-calendar) td {
             height: 27px;
         }
 
-        tr:nth-child(even)
+        table:not(.ui-datepicker-calendar) tr:nth-child(even)
         {
           background: rgba(0, 0, 0, .05);
         }
 
-        tr:nth-child(odd):hover
+        table:not(.ui-datepicker-calendar) tr:nth-child(odd):hover
         {
           background: rgba(0, 0, 0, .03);
         }
 
-        tr:nth-child(even):hover
+        table:not(.ui-datepicker-calendar) tr:nth-child(even):hover
         {
           background: rgba(0, 0, 0, .08);
         }
@@ -1036,6 +1039,34 @@
         {
             font-size: 17px;
         }
+
+        .parent-ww
+        {
+            position: relative;
+            width: 100%;
+        }
+
+        #roleSearchResult
+        {
+            z-index: 9999;
+            position: absolute;
+            border: 1px solid rgba(0, 0, 0, .1);
+            background: #ffffff;
+            width: 100%;
+        }
+
+        .role-result-line
+        {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px;
+        }
+
+        .role-result-line:hover
+        {
+            background: rgba(0, 0, 0, .1);
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -1218,6 +1249,9 @@
         let G_onRoleSearchKeywords = [];
         let G_onKeypress = false;
         let G_onRoleSelected = false;
+        let G_employeeId = {{ .employeeId }};
+        let datepickerOnce = false;
+        let timepickerOnce = false;
 
         function onSearch( keyword )
         {
@@ -1235,30 +1269,66 @@
 
         $(document).ready( function()
         {
-            moment.lang("id");
+            moment.locale("id");
+
+            // $("input").datepicker();
 
             $("#rateFix").html(`Rp${stringHelper.convert_money("{{ .employeeRate }}")},-`);
-            // $("#searchQuery").on("keypress keyup", function()
-            // {
-            //     G_onKeypress = true;
-            // });
 
-            // $("html").on("click", function()
-            // {
-            //     G_onKeypress = false;
-            // });
+            $(document).on('focus', ".datepicker", function (e) {
+                // if(! datepickerOnce )
+                // {
+                    datepickerOnce = true;
+                    $(".datepicker").datepicker({
+                        dateFormat: 'dd/mm/yy'
+                    });
+                // }
+            });
 
-            // $("#searchQuery").on("focusout", function()
-            // {
-            //     setTimeout(() => {
-            //         if(! G_onKeypress )
-            //         {
-            //             console.log("asdasd", G_onKeypress);
-            //         }
+            $(document).on('focus', ".timepicker", function (e) {
+                // if(! timepickerOnce )
+                // {
+                    timepickerOnce = true;
+                    $(".timepicker").timepicker();
+                // }
+            });
 
-            //         G_onKeypress = false;
-            //     }, 400);
-            // });
+            // -------
+
+            $(document).on('focus', "#roleInput", function (e) {
+                $("#roleInput").on("focus", function()
+                {
+                    $("#roleSearchResult").show("blind");
+                });
+
+                $("#roleInput").on("keypress keyup", function()
+                {
+                    G_onKeypress = true;
+                });
+
+                $("html").on("click", function()
+                {
+                    G_onKeypress = false;
+                });
+
+                $("#roleInput").on("focusout", function()
+                {
+                    setTimeout(() => {
+                        console.log(G_onKeypress);
+                        if(! G_onKeypress )
+                        {
+                            if(! G_onRoleSelected )
+                                $("#roleInput").val("");
+
+                            $("#roleSearchResult").hide("blind");
+                        }
+
+                        G_onKeypress = false;
+                    }, 400);
+                });
+            });
+
+            // ----- 
 
             $(document).on('keypress', "#createTitle", function (e) {
                 if (e.key === 'Enter' || e.keyCode === 13) {

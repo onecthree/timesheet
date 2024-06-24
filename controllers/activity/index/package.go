@@ -89,7 +89,7 @@ func GetResponse( ginContext *gin.Context, db *sql.DB ) ([]map[string]string, in
 	}
 
 	var query string
-	query += database.Query(`SELECT COUNT(activity.id) AS totalData, employee.name, employee.rate`)
+	query += database.Query(`SELECT COUNT(activity.id) AS totalData, employee.id, employee.name, employee.rate`)
 	query += database.Query(`FROM activity`)
 	query += database.Query(`INNER JOIN employee ON employee.id = activity.employee_id`)
 	query += database.Query("WHERE activity.expired != 1")
@@ -109,10 +109,12 @@ func GetResponse( ginContext *gin.Context, db *sql.DB ) ([]map[string]string, in
 	}
 
 	retval := make([]map[string]string, 1)
-	retval[0] = make(map[string]string, 3)
+	retval[0] = make(map[string]string, 4)
 	retval[0]["maxPage"] = maxPage
 	retval[0]["name"] = result[0]["name"]
 	retval[0]["rate"] = result[0]["rate"]
+	retval[0]["id"] = result[0]["id"]
+
 
 	return retval, http.StatusOK, "OK", false
 }

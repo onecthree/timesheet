@@ -19,8 +19,11 @@ import(
 	controllersProjectEdit "github.com/onecthree/timesheet/controllers/project/edit"
 	controllersProjectList "github.com/onecthree/timesheet/controllers/project/list"
 	controllersProjectDelete "github.com/onecthree/timesheet/controllers/project/delete"
+	controllersProjectSearch "github.com/onecthree/timesheet/controllers/project/search"
 
 	controllersActivityIndex "github.com/onecthree/timesheet/controllers/activity/index"
+	controllersActivityCreate "github.com/onecthree/timesheet/controllers/activity/create"
+	controllersActivityEdit "github.com/onecthree/timesheet/controllers/activity/edit"
 	controllersActivityList "github.com/onecthree/timesheet/controllers/activity/list"
 	controllersActivityDelete "github.com/onecthree/timesheet/controllers/activity/delete"
 
@@ -227,6 +230,24 @@ func main() {
 		})	
   	})
 
+  	app.POST("/project/search", func( c *gin.Context ) {
+		data, httpStatusCode, message, isControllersFailed := controllersProjectSearch.PostResponse(c, database)
+
+  		if isControllersFailed {
+	  		c.JSON(httpStatusCode, gin.H{
+				"success": false,
+				"message": message,
+			})	
+  		} else {
+	  		c.JSON(httpStatusCode, gin.H{
+	  			"success": true,
+	  			"message": message,
+				"data": data["data"],
+			})	
+  		}
+  	})
+
+
   	app.GET("/activity/:slug", func( c *gin.Context ) {
   		data, httpStatusCode, _, isControllersFailed := controllersActivityIndex.GetResponse(c, database)
 
@@ -248,6 +269,7 @@ func main() {
 	  			"currentSortBy": c.Query("sort_by"),
 	  			"employeeName": data[0]["name"],
 	  			"employeeRate": data[0]["rate"],
+	  			"employeeId": data[0]["id"],
 	  		})
   		}
   	})
@@ -283,6 +305,24 @@ func main() {
 
   	app.POST("/activity/delete", func( c *gin.Context ) {
   		httpStatusCode, message, _ := controllersActivityDelete.PostResponse(c, database)
+
+  		c.JSON(httpStatusCode, gin.H{
+			"success": false,
+			"message": message,
+		})	
+  	})
+
+	app.POST("/activity/create", func( c *gin.Context ) {
+  		httpStatusCode, message, _ := controllersActivityCreate.PostResponse(c, database)
+
+  		c.JSON(httpStatusCode, gin.H{
+			"success": false,
+			"message": message,
+		})	
+  	})
+
+  	app.POST("/activity/edit", func( c *gin.Context ) {
+  		httpStatusCode, message, _ := controllersActivityEdit.PostResponse(c, database)
 
   		c.JSON(httpStatusCode, gin.H{
 			"success": false,

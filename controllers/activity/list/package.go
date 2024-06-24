@@ -229,7 +229,7 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	var dataQuery string
 	dataQuery += database.Query(`SELECT activity.id, activity.title, activity.date_start,`)
 	dataQuery += database.Query(`activity.date_end, activity.time_start, activity.time_end,`)
-	dataQuery += database.Query(`project.title AS project_title,`)
+	dataQuery += database.Query(`project.title AS project_title, project.id AS project_id,`)
 	dataQuery += database.Query(`TIMEDIFF(activity.time_end, activity.time_start) AS duration`)
 	// dataQuery += database.Query(`GROUP BY employee.id`)
 	dataQuery += database.Query(`FROM activity`)

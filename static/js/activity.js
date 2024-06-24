@@ -4,6 +4,93 @@ function foo( e )
     return false;
 }
 
+const roles =
+{
+    select: function( id, name )
+    {
+        G_onRoleSelected = true;
+        $("#roleInput").val(name);
+        $("input[name=project_id]").val(id);
+    },
+    request: function( keyword )
+    {
+        $.ajax({
+            url: `/project/search?k=${keyword}`,
+            type: "POST",
+            statusCode:
+            {
+                200: function( response, status, xhr )
+                {
+                    G_csrfToken = xhr.getResponseHeader("X-CSRF-Token");
+                    let elem = "";  
+                    response.data.forEach(( value, index ) =>
+                    {
+                        elem +=  `<div class="role-result-line" onclick="javascript:roles.select(\`${value.id}\`, \`${value.title}\`);">
+                            <div class="role-name">${value.title}</div>
+                        </div>`;
+                    });
+
+                    // console.log("ADA", elem);
+                    if( elem.length !== 0 )
+                    {
+                        $("#roleSearchResult").html(elem);
+                    }
+                    else
+                    {
+                        $("#roleSearchResult").html(`<div class="role-result-line">
+                            <div class="role-name text-muted">Tidak ditemukan</div>
+                        </div>`);
+                    }
+
+                    $("#roleSearchResult").show("blind");
+                },  
+                400: function( response )
+                {
+                    // G_csrfToken = response.getResponseHeader("X-CSRF-Token");
+                    $("#roleSearchResult").html(`<div class="role-result-line">
+                        <div class="role-name text-muted">Ketik untuk pencarian</div>
+                    </div>`);
+                },
+            },
+        });
+    },
+    input: function( keyword )
+    {
+        G_onRoleSearchState += 1;
+        setTimeout(() => {
+            if( G_onRoleSearchState === 1 )
+            {
+                roles.request(keyword);
+            }
+            G_onRoleSearchState -= 1;
+        }, 500);   
+    }
+}
+
+const dateFocus =
+{
+    begin: function()
+    {
+        $("#datepickerStartField").focus();
+    },
+    end: function()
+    {
+        $("#datepickerEndField").focus();
+    }
+}
+
+const timeFocus =
+{
+    begin: function()
+    {
+        $("#timepickerStartField").focus();
+    },
+    end: function()
+    {
+        $("#timepickerEndField").focus();
+    }
+}
+
 const appFloat =
 {
     closeAlert: function()
@@ -164,7 +251,38 @@ const appFloat =
                 $("#float-app .inline-button .button-primary span").html(`Tambah Karyawan`);
                 $("#float-app .inline-button .button-primary span").show("fade", 300);
 
-                const titleInput = $("#createTitle").val();
+                const titleInput = $("#titleInput").val();
+                const dateStart = $("#datepickerStartField").val();
+                const dateEnd = $("#datepickerEndField").val();
+                const timeStart = $("#timepickerStartField").val();
+                const timeEnd = $("#timepickerEndField").val();
+                const projectId = $("#projectInput").val();
+
+                console.log("TIME TIME", timeStart, timeEnd);
+
+                if( dateStart.length === 0 )
+                    return $("#dateStartNotify").html("Kolom harus terisi");
+
+                if(! moment(dateStart, "DD/MM/YYYY", true).isValid() )
+                    return $("#timeStartNotify").html("Format tidak didukung");
+
+                if( dateEnd.length === 0 )
+                    return $("#dateEndNotify").html("Kolom harus terisi");
+
+                if(! moment(dateEnd, "DD/MM/YYYY", true).isValid() )
+                    return $("#timeStartNotify").html("Format tidak didukung");
+
+                if( timeStart.length === 0 )
+                    return $("#timeStartNotify").html("Kolom harus terisi");
+
+                if(! timeStart.match(/^([01][0-9]|2[0-3]):([0-5][0-9])$/g) )
+                    return $("#timeStartNotify").html("Format tidak didukung");
+
+                if( timeEnd.length === 0 )
+                    return $("#timeEndNotify").html("Kolom harus terisi");
+
+                if(! timeEnd.match(/^([01][0-9]|2[0-3]):([0-5][0-9])$/g) )
+                    return $("#timeStartNotify").html("Format tidak didukung");
 
                 if( !titleInput.length )
                     return $("#titleNotify").html("Kolom harus terisi");
@@ -174,6 +292,9 @@ const appFloat =
 
                 if( titleInput.length < 6 || titleInput.length > 30 )
                     return $("#titleNotify").html("Kolom harus berisi 6-30 karakter");
+
+                if( projectId.length === 0 )
+                    return $("#projectNotify").html("Kolom harus terisi atau proyek tidak tersedia");
             }, 300);
 
         }, 1000);
@@ -192,7 +313,7 @@ const appFloat =
                     </div>
                 </div>
                 <div class="app-pop-title">Berhasil</div>
-                <div class="app-pop-desc">Menambahkan proyek baru</div>
+                <div class="app-pop-desc">Menambahkan karyawan baru</div>
             </div>
         `;
 
@@ -254,7 +375,7 @@ const appFloat =
     {
         (function()
         {
-            $("#titleNotify, #rateNotify").html("");
+            $("#dateStartNotify, #dateEndNotify, #timeStartNotify, #timeEndNotify, #titleNotify, #projectNotify").html("&nbsp;");
         })();
 
         $("#createName, #createRate").attr("disabled", true);
@@ -272,10 +393,16 @@ const appFloat =
         }, 300);
 
         let dataReq = new FormData();
-        dataReq.append("title", title);
+        dataReq.append("date_start", $("input[name=date_start]").val());
+        dataReq.append("date_end", $("input[name=date_end]").val());
+        dataReq.append("time_start", $("input[name=time_start]").val());
+        dataReq.append("time_end", $("input[name=time_end]").val());
+        dataReq.append("title", $("input[name=title]").val());
+        dataReq.append("project_id", $("input[name=project_id]").val());
+        dataReq.append("employee_id", G_employeeId);
 
         $.ajax({
-            url: `/project/create`,
+            url: `/activity/create`,
             type: "POST",
             processData: false,
             contentType: false,
@@ -304,97 +431,75 @@ const appFloat =
     },
     confirmCreate: function( title )
     {
-        // const htmlx =
-        // `
-        //     <div class="window-top">
-        //         <div>Tambah Kegiatan Baru</div>
-        //         <div class="close-float" onclick="javascript:hideAddActivity();"><i class="bi bi-x-lg"></i></div>
-        //     </div>
-        //     <div class="window-content">
-        //         <div class="date-content">
-        //             <div class="date-wrap">
-        //                 <span class="float-title">Tanggal mulai <span class="text-danger">*</span></span>
-        //                 <div class="datetime-target">
-        //                     <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-        //                     <span class="text-danger text-small">Kolom harus terisi</span>
-        //                 </div>
-        //             </div>
-
-        //             <div class="date-wrap">
-        //                 <span class="float-title">Tanggal berakhir <span class="text-danger">*</span></span>
-        //                 <div class="datetime-target">
-        //                     <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-        //                     <span class="text-danger text-small">Kolom harus terisi</span>
-        //                 </div>
-        //             </div>
-
-        //             <div class="date-wrap">
-        //                 <span class="float-title">Jam mulai <span class="text-danger">*</span></span>
-        //                 <div class="datetime-target">
-        //                     <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-        //                     <span class="text-danger text-small">Kolom harus terisi</span>
-        //                 </div>
-        //             </div>
-
-        //             <div class="date-wrap">
-        //                 <span class="float-title">Jam berakhir <span class="text-danger">*</span></span>
-        //                 <div class="datetime-target">
-        //                     <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-        //                     <span class="text-danger text-small">Kolom harus terisi</span>
-        //                 </div>
-        //             </div>
-        //         </div>
-        //         <div class="title-activity">
-        //             <span class="float-title">Judul kegiatan <span class="text-danger">*</span></span>
-        //             <div class="form-control">
-        //                 <input type="" name="">
-        //                 <small class="text-danger">Kolom harus terisi</small>
-        //             </div>
-        //         </div>
-        //         <div class="title-project">
-        //             <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
-        //             <div class="form-control">
-        //                 <select class="form-select" aria-label="Default select example">
-        //                     <option value="1" selected>Pilih salah satu proyek</option>
-        //                     <option value="1">10</option>
-        //                     <option value="2">25</option>
-        //                     <option value="3">50</option>
-        //                 </select>
-        //                 <small class="text-danger">Kolom harus terisi</small>
-        //             </div>
-        //         </div>
-        //         <div class="float-save">
-        //             <span class="text-danger">* Wajib diisi</span>
-        //             <span class="inline-button">
-        //                 <span class="float-button button-danger" onclick="javascript:hideAddActivity();">Lupakan</span>
-        //                 <span class="float-button button-primary">Buat kegiatan</span>
-        //             </span>
-        //         </div>
-        //     </div>
-        // `;
-
         const html =
         `
-            <div class="main-float">
-                <div class="window-top">
-                    <div>Tambah Proyek Baru</div>
-                    <div class="close-float" onclick="javascript:appFloat.closeApp();"><i class="bi bi-x-lg"></i></div>
-                </div>
-                <div class="window-content">
-                    <div class="title-activity" style="margin-bottom: 180px;">
-                        <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
-                        <div class="form-control">
-                            <input type="" id="createTitle" name="title">
-                            <small id="titleNotify" class="text-danger"></small>
+            <div class="window-top">
+                <div>Tambah Kegiatan Baru</div>
+                <div class="close-float" onclick="javascript:appFloat.closeApp();"><i class="bi bi-x-lg"></i></div>
+            </div>
+            <div class="window-content">
+                <div class="date-content">
+                    <div class="date-wrap">
+                        <span class="float-title">Tanggal mulai <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name="date_start" class="datepicker" id="datepickerStartField" readonly></span><span onclick="javascript:dateFocus.begin();" class="icon-pointer"><i class="bi bi-calendar-minus-fill"></i></span></div>
+                            <span class="text-danger text-small" id="dateStartNotify">&nbsp;</span>
                         </div>
                     </div>
-                    <div class="float-save-employee">
-                        <span class="text-danger">* Wajib diisi</span>
-                        <span class="inline-button">
-                            <button class="float-button button-danger" onclick="javascript:appFloat.closeApp();">Batal</button>
-                            <button value="submit" class="float-button button-primary" onclick="javascript:appFloat.processCreate($('#createTitle').val());"><span>Tambah Proyek</span></button>
-                        </span>
+
+                    <div class="date-wrap">
+                        <span class="float-title">Tanggal berakhir <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name="date_end" class="datepicker" id="datepickerEndField" readonly></span><span onclick="javascript:dateFocus.end();" class="icon-pointer"><i class="bi bi-calendar-minus-fill"></i></span></div>
+                            <span class="text-danger text-small" id="dateEndNotify">&nbsp;</span>
+                        </div>
                     </div>
+
+                    <div class="date-wrap">
+                        <span class="float-title">Jam mulai <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name="time_start" class="timepicker" id="timepickerStartField" readonly></span><span onclick="javascript:timeFocus.begin();" class="icon-pointer"><i class="bi bi-clock"></i></span></div>
+                            <span class="text-danger text-small" id="timeStartNotify">&nbsp;</span>
+                        </div>
+                    </div>
+
+                    <div class="date-wrap">
+                        <span class="float-title">Jam berakhir <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name="time_end" class="timepicker" id="timepickerEndField" readonly></span><span onclick="javascript:timeFocus.end();" class="icon-pointer"><i class="bi bi-clock"></i></span></div>
+                            <span class="text-danger text-small" id="timeEndNotify">&nbsp;</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="title-activity">
+                    <span class="float-title">Judul kegiatan <span class="text-danger">*</span></span>
+                    <div class="form-control">
+                        <input type="" name="title" id="titleInput">
+                        <small class="text-danger" id="titleNotify"></small>
+                    </div>
+                </div>
+                <div class="title-activity">
+                    <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
+                    <div class="form-control">
+                        <input type="hidden" name="project_id" id="projectInput" value="">
+                        <input type="text" id="roleInput" class="form-control" placeholder="Pulsa White Coast" oninput="javascript:roles.input(this.value);">
+                        <div class="parent-ww">
+                            <div id="roleSearchResult" style="display: none;">
+                                <div class="role-result-line">
+                                    <div class="role-name text-muted">Ketik untuk pencarian</div>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-danger" id="projectNotify"></small>
+                    </div>
+                </div>
+                <div class="float-save">
+                    <span class="text-danger">* Wajib diisi</span>
+                    <span class="inline-button">
+                        <button class="float-button button-danger" onclick="javascript:appFloat.closeApp();">Lupakan</span>
+                        <button class="float-button button-primary" onclick="javascript:appFloat.processCreate();""><span>Buat kegiatan</span>
+                        </button>
+                    </span>
                 </div>
             </div>
         `;
@@ -428,16 +533,50 @@ const appFloat =
                 $("#float-app .inline-button .button-primary span").html(`Ubah Data`);
                 $("#float-app .inline-button .button-primary span").show("fade", 300);
 
-                const nameInput = $("#editTitle").val();
+                const titleInput = $("#titleInput").val();
+                const dateStart = $("#datepickerStartField").val();
+                const dateEnd = $("#datepickerEndField").val();
+                const timeStart = $("#timepickerStartField").val();
+                const timeEnd = $("#timepickerEndField").val();
+                const projectId = $("#projectInput").val();
 
-                if( !nameInput.length )
+                console.log("TIME TIME", timeStart, timeEnd);
+
+                if( dateStart.length === 0 )
+                    return $("#dateStartNotify").html("Kolom harus terisi"); // DD MMM YYYY
+
+                if(! moment(dateStart, "DD/MM/YYYY", true).isValid() )
+                    return $("#dateStartNotify").html("Format tidak didukung");
+
+                if( dateEnd.length === 0 )
+                    return $("#dateEndNotify").html("Kolom harus terisi");
+
+                if(! moment(dateEnd, "DD/MM/YYYY", true).isValid() )
+                    return $("#dateEndNotify").html("Format tidak didukung");
+
+                if( timeStart.length === 0 )
+                    return $("#timeStartNotify").html("Kolom harus terisi");
+
+                if(! timeStart.match(/^([01][0-9]|2[0-3]):([0-5][0-9])$/g) )
+                    return $("#timeStartNotify").html("Format tidak didukung");
+
+                if( timeEnd.length === 0 )
+                    return $("#timeEndNotify").html("Kolom harus terisi");
+
+                if(! timeEnd.match(/^([01][0-9]|2[0-3]):([0-5][0-9])$/g) )
+                    return $("#timeEndNotify").html("Format tidak didukung");
+
+                if( !titleInput.length )
                     return $("#titleNotify").html("Kolom harus terisi");
 
-                if( nameInput.match(/[^a-zA-Z0-9\s+]/g) )
+                if( titleInput.match(/[^a-zA-Z0-9\s+]/g) )
                     return $("#titleNotify").html("Isi dengan huruf, angka, atau spasi");
 
-                if( nameInput.length < 6 || nameInput.length > 30 )
+                if( titleInput.length < 6 || titleInput.length > 30 )
                     return $("#titleNotify").html("Kolom harus berisi 6-30 karakter");
+
+                if( projectId.length === 0 )
+                    return $("#projectNotify").html("Kolom harus terisi atau proyek tidak tersedia");
             }, 300);
 
         }, 1000);
@@ -514,7 +653,7 @@ const appFloat =
             }, 1500);
         }, 500);
     },
-    processEdit: function( id, title )
+    processEdit: function( id )
     {
         (function()
         {
@@ -537,10 +676,17 @@ const appFloat =
 
         let dataReq = new FormData();
         dataReq.append("id", id);
-        dataReq.append("title", title);
+        dataReq.append("date_start", $("input[name=date_start]").val());
+        dataReq.append("date_end", $("input[name=date_end]").val());
+        dataReq.append("time_start", $("input[name=time_start]").val());
+        dataReq.append("time_end", $("input[name=time_end]").val());
+        dataReq.append("title", $("input[name=title]").val());
+        dataReq.append("project_id", $("input[name=project_id]").val());
+        dataReq.append("employee_id", G_employeeId);
+
 
         $.ajax({
-            url: `/project/edit`,
+            url: `/activity/edit`,
             type: "POST",
             processData: false,
             contentType: false,
@@ -567,31 +713,78 @@ const appFloat =
             }
         });
     },
-    confirmEdit: function( id, title )
+    confirmEdit: function( id, dateStart, dateEnd, timeStart, timeEnd, title, project_title, project_id )
     {
+        console.log("MAS ANIES ", project_title, project_id)
         const html =
         `
-            <div class="main-float">
-                <div class="window-top">
-                    <div>Ubah Data ${title}</div>
-                    <div class="close-float" onclick="javascript:appFloat.closeApp();"><i class="bi bi-x-lg"></i></div>
-                </div>
-                <div class="window-content">
-                    <input type="hidden" id="editId" name="id" value="${id}">
-                    <div class="title-activity" style="margin-bottom: 180px;">
-                        <span class="float-title">Nama karyawan <span class="text-danger">*</span></span>
-                        <div class="form-control">
-                            <input type="" id="editTitle" name="name" value="${title}">
-                            <small id="titleNotify" class="text-danger"></small>
+            <div class="window-top">
+                <div>Tambah Kegiatan Baru</div>
+                <div class="close-float" onclick="javascript:appFloat.closeApp();"><i class="bi bi-x-lg"></i></div>
+            </div>
+            <div class="window-content">
+                <div class="date-content">
+                    <div class="date-wrap">
+                        <span class="float-title">Tanggal mulai <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name="date_start" class="datepicker" id="datepickerStartField" value="${dateStart}" readonly></span><span onclick="javascript:dateFocus.begin();" class="icon-pointer"><i class="bi bi-calendar-minus-fill"></i></span></div>
+                            <span class="text-danger text-small" id="dateStartNotify">&nbsp;</span>
                         </div>
                     </div>
-                    <div class="float-save-employee">
-                        <span class="text-danger">* Wajib diisi</span>
-                        <span class="inline-button">
-                            <button class="float-button button-danger" onclick="javascript:appFloat.closeApp();">Batal</button>
-                            <button value="submit" class="float-button button-primary" onclick="javascript:appFloat.processEdit(${id}, $('#editTitle').val());"><span>Ubah Data</span></button>
-                        </span>
+
+                    <div class="date-wrap">
+                        <span class="float-title">Tanggal berakhir <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name="date_end" class="datepicker" id="datepickerEndField" value="${dateEnd}" readonly></span><span onclick="javascript:dateFocus.end();" class="icon-pointer"><i class="bi bi-calendar-minus-fill"></i></span></div>
+                            <span class="text-danger text-small" id="dateEndNotify">&nbsp;</span>
+                        </div>
                     </div>
+
+                    <div class="date-wrap">
+                        <span class="float-title">Jam mulai <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name="time_start" class="timepicker" id="timepickerStartField" value="${timeStart}" readonly></span><span onclick="javascript:timeFocus.begin();" class="icon-pointer"><i class="bi bi-clock"></i></span></div>
+                            <span class="text-danger text-small" id="timeStartNotify">&nbsp;</span>
+                        </div>
+                    </div>
+
+                    <div class="date-wrap">
+                        <span class="float-title">Jam berakhir <span class="text-danger">*</span></span>
+                        <div class="datetime-target">
+                            <div class="date-box"><span><input type="" name="time_end" class="timepicker" id="timepickerEndField" value="${timeEnd}" readonly></span><span onclick="javascript:timeFocus.end();" class="icon-pointer"><i class="bi bi-clock"></i></span></div>
+                            <span class="text-danger text-small" id="timeEndNotify">&nbsp;</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="title-activity">
+                    <span class="float-title">Judul kegiatan <span class="text-danger">*</span></span>
+                    <div class="form-control">
+                        <input type="" name="title" id="titleInput" value="${title}">
+                        <small class="text-danger" id="titleNotify"></small>
+                    </div>
+                </div>
+                <div class="title-activity">
+                    <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
+                    <div class="form-control">
+                        <input type="hidden" name="project_id" id="projectInput" value="${project_id}">
+                        <input type="text" id="roleInput" class="form-control" placeholder="Pulsa White Coast" value="${project_title}" oninput="javascript:roles.input(this.value);">
+                        <div class="parent-ww">
+                            <div id="roleSearchResult" style="display: none;">
+                                <div class="role-result-line">
+                                    <div class="role-name text-muted">Ketik untuk pencarian</div>
+                                </div>
+                            </div>
+                        </div>
+                        <small class="text-danger" id="projectNotify"></small>
+                    </div>
+                </div>
+                <div class="float-save">
+                    <span class="text-danger">* Wajib diisi</span>
+                    <span class="inline-button">
+                        <button class="float-button button-danger" onclick="javascript:appFloat.closeApp();">Lupakan</span>
+                        <button class="float-button button-primary" onclick="javascript:appFloat.processEdit(${id});""><span>Ubah data</span>
+                        </button>
+                    </span>
                 </div>
             </div>
         `;
@@ -956,18 +1149,23 @@ const table =
 
                     const totalEmployee = parseInt(data[i].total_employee);
                     const totalActivity = parseInt(data[i].total_activity);
+
+                    const dateStart = moment(data[i].date_start, "YYYY-MM-DD HH:mm:s");
+                    const dateEnd = moment(data[i].date_end, "YYYY-MM-DD HH:mm:s");
+                    const timeStart = moment(data[i].time_start, "HH:mm:s").format("HH:mm");
+                    const timeEnd = moment(data[i].time_end, "HH:mm:s").format("HH:mm");
                     let row = `
                     	<tr>
 	                        <td>${data[i].title}</td>
 	                        <td>${data[i].project_title}</td>
-                            <td>${moment(data[i].date_start, "YYYY-MM-DD HH:mm:s").format("DD MMM YYYY")}</td>
-                            <td>${moment(data[i].date_end, "YYYY-MM-DD HH:mm:s").format("DD MMM YYYY")}</td>
-                            <td>${moment(data[i].time_start, "HH:mm:s").format("HH:mm")}</td>
-                            <td>${moment(data[i].time_end, "HH:mm:s").format("HH:mm")}</td>
+                            <td>${dateStart.format("DD MMM YYYY")}</td>
+                            <td>${dateEnd.format("DD MMM YYYY")}</td>
+                            <td>${timeStart}</td>
+                            <td>${timeEnd}</td>
                             <td>${moment(data[i].duration, "HH:mm:s").format("HH:mm")}</td>
 	                        <td>
 	                            <div class="action-table">
-	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmEdit('${data[i].id}', '${data[i].title}');"><i class="bi bi-pencil-square edit"></i></span>
+	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmEdit('${data[i].id}', '${dateStart.format("DD/MM/YYYY")}', '${dateEnd.format("DD/MM/YYYY")}', '${timeStart}', '${timeEnd}', '${data[i].title}', '${data[i].project_title}', '${data[i].project_id}');"><i class="bi bi-pencil-square edit"></i></span>
 	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmDelete(${data[i].id}, '${data[i].title}');"><i class="bi bi-trash-fill delete"></i></span>
 	                            </div>
 	                        </td>
