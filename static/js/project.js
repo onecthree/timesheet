@@ -90,7 +90,7 @@ const appFloat =
 
             // appFloat.processSuccess();
             $.ajax({
-                url: `/employee/delete?id=${id}`,
+                url: `/project/delete?id=${id}`,
                 type: "POST",
                 headers: { "X-CSRF-Token": G_csrfToken },
                 statusCode:
@@ -118,11 +118,14 @@ const appFloat =
             });
         }, 300);
     },
-    confirmDelete: function( id, name, totalActivity )
+    confirmDelete: function( id, title, totalEmployee, totalActivity )
     {
+        // "10 Kegiatan akan terhapus bersama Desain UI, lanjut hapus?"
+        // "Tidak ada kegiatan terhapus bersama Desain UI, lanjut hapus?"
+
         const html =
         `
-            <div class="alert-desc">${name} ${totalActivity ? "memiliki "+totalActivity : "tidak memiliki"} kegiatan, lanjut hapus?</div>
+            <div class="alert-desc">${totalActivity ? `${totalActivity} kegiatan akan terhapus bersama`: "Mencoba menghapus"} ${title}, lanjutkan?</div>
             <div class="alert-button">
                 <div class="empty">&nbsp;</div>
                 <div class="alert-same">
@@ -161,26 +164,16 @@ const appFloat =
                 $("#float-app .inline-button .button-primary span").html(`Tambah Karyawan`);
                 $("#float-app .inline-button .button-primary span").show("fade", 300);
 
-                const nameInput = $("#createName").val();
-                const rateInput = $("#createRate").val().replace(/\,/g, "");
+                const titleInput = $("#createTitle").val();
 
-                if( !nameInput.length )
-                    return $("#nameNotify").html("Kolom harus terisi");
+                if( !titleInput.length )
+                    return $("#titleNotify").html("Kolom harus terisi");
 
-                if( nameInput.match(/[^a-zA-Z0-9\s+]/g) )
-                    return $("#nameNotify").html("Isi dengan huruf, angka, atau spasi");
+                if( titleInput.match(/[^a-zA-Z0-9\s+]/g) )
+                    return $("#titleNotify").html("Isi dengan huruf, angka, atau spasi");
 
-                if( nameInput.length < 6 || nameInput.length > 30 )
-                    return $("#nameNotify").html("Kolom harus berisi 6-30 karakter");
-
-                if( !rateInput.length )
-                    return $("#rateNotify").html("Kolom harus terisi");
-
-                if( !rateInput.match(/^(0|[1-9][0-9]*)$/g) )
-                    return $("#rateNotify").html("Nilai tidak mendukung mata uang");
-
-                if( rateInput.length > 13 )
-                    return $("#rateNotify").html("Hanya mencakup maksimum nominal hingga 9,999,999,999,999");
+                if( titleInput.length < 6 || titleInput.length > 30 )
+                    return $("#titleNotify").html("Kolom harus berisi 6-30 karakter");
             }, 300);
 
         }, 1000);
@@ -199,7 +192,7 @@ const appFloat =
                     </div>
                 </div>
                 <div class="app-pop-title">Berhasil</div>
-                <div class="app-pop-desc">Menambahkan karyawan baru</div>
+                <div class="app-pop-desc">Menambahkan proyek baru</div>
             </div>
         `;
 
@@ -257,11 +250,11 @@ const appFloat =
             }, 1500);
         }, 500);
     },
-    processCreate: function( name, rate )
+    processCreate: function( title )
     {
         (function()
         {
-            $("#nameNotify, #rateNotify").html("");
+            $("#titleNotify, #rateNotify").html("");
         })();
 
         $("#createName, #createRate").attr("disabled", true);
@@ -279,11 +272,10 @@ const appFloat =
         }, 300);
 
         let dataReq = new FormData();
-        dataReq.append("name", name);
-        dataReq.append("rate", rate.replace(/\,/g, ""));
+        dataReq.append("title", title);
 
         $.ajax({
-            url: `/employee/create`,
+            url: `/project/create`,
             type: "POST",
             processData: false,
             contentType: false,
@@ -310,7 +302,7 @@ const appFloat =
             }
         });
     },
-    confirmCreate: function( name )
+    confirmCreate: function( title )
     {
         // const htmlx =
         // `
@@ -385,33 +377,22 @@ const appFloat =
         `
             <div class="main-float">
                 <div class="window-top">
-                    <div>Tambah Karyawan Baru</div>
+                    <div>Tambah Proyek Baru</div>
                     <div class="close-float" onclick="javascript:appFloat.closeApp();"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <div class="window-content">
-                    <div class="title-activity">
-                        <span class="float-title">Nama karyawan <span class="text-danger">*</span></span>
+                    <div class="title-activity" style="margin-bottom: 180px;">
+                        <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
                         <div class="form-control">
-                            <input type="" id="createName" name="name">
-                            <small id="nameNotify" class="text-danger"></small>
-                        </div>
-                    </div>
-                    <div class="title-project">
-                        <div class="float-title">Rate <span class="text-danger">*</span></div>
-                        <div class="form-control">
-                            <div class="rate-input-bar">
-                                <span class="rate-input-bar-rp">Rp</span>
-                                <div><input type="" name="rate" id="createRate" class="input-employee-rate" oninput="javascript:stringHelper.input_money(this);"></div>
-                                <span class="rate-input-bar-hour">/ Jam</span>
-                            </div>
-                            <small id="rateNotify" class="text-danger"></small>
+                            <input type="" id="createTitle" name="title">
+                            <small id="titleNotify" class="text-danger"></small>
                         </div>
                     </div>
                     <div class="float-save-employee">
                         <span class="text-danger">* Wajib diisi</span>
                         <span class="inline-button">
                             <button class="float-button button-danger" onclick="javascript:appFloat.closeApp();">Batal</button>
-                            <button value="submit" class="float-button button-primary" onclick="javascript:appFloat.processCreate($('#createName').val(), $('#createRate').val());"><span>Tambah Karyawan</span></button>
+                            <button value="submit" class="float-button button-primary" onclick="javascript:appFloat.processCreate($('#createTitle').val());"><span>Tambah Proyek</span></button>
                         </span>
                     </div>
                 </div>
@@ -447,26 +428,16 @@ const appFloat =
                 $("#float-app .inline-button .button-primary span").html(`Ubah Data`);
                 $("#float-app .inline-button .button-primary span").show("fade", 300);
 
-                const nameInput = $("#editName").val();
-                const rateInput = $("#editRate").val().replace(/\,/g, "");
+                const nameInput = $("#editTitle").val();
 
                 if( !nameInput.length )
-                    return $("#nameNotify").html("Kolom harus terisi");
+                    return $("#titleNotify").html("Kolom harus terisi");
 
                 if( nameInput.match(/[^a-zA-Z0-9\s+]/g) )
-                    return $("#nameNotify").html("Isi dengan huruf, angka, atau spasi");
+                    return $("#titleNotify").html("Isi dengan huruf, angka, atau spasi");
 
                 if( nameInput.length < 6 || nameInput.length > 30 )
-                    return $("#nameNotify").html("Kolom harus berisi 6-30 karakter");
-
-                if( !rateInput.length )
-                    return $("#rateNotify").html("Kolom harus terisi");
-
-                if( !rateInput.match(/^(0|[1-9][0-9]*)$/g) )
-                    return $("#rateNotify").html("Nilai tidak mendukung mata uang");
-
-                if( rateInput.length > 13 )
-                    return $("#rateNotify").html("Hanya mencakup maksimum nominal hingga 9,999,999,999,999");
+                    return $("#titleNotify").html("Kolom harus berisi 6-30 karakter");
             }, 300);
 
         }, 1000);
@@ -485,7 +456,7 @@ const appFloat =
                     </div>
                 </div>
                 <div class="app-pop-title">Berhasil</div>
-                <div class="app-pop-desc">Merubah data karyawan</div>
+                <div class="app-pop-desc">Merubah data proyek</div>
             </div>
         `;
 
@@ -543,11 +514,11 @@ const appFloat =
             }, 1500);
         }, 500);
     },
-    processEdit: function( id, name, rate )
+    processEdit: function( id, title )
     {
         (function()
         {
-            $("#nameNotify, #rateNotify").html("");
+            $("#titleNotify, #rateNotify").html("");
         })();
 
         $("#editName, #editRate").attr("disabled", true);
@@ -566,11 +537,10 @@ const appFloat =
 
         let dataReq = new FormData();
         dataReq.append("id", id);
-        dataReq.append("name", name);
-        dataReq.append("rate", rate.replace(/\,/g, ""));
+        dataReq.append("title", title);
 
         $.ajax({
-            url: `/employee/edit`,
+            url: `/project/edit`,
             type: "POST",
             processData: false,
             contentType: false,
@@ -597,40 +567,29 @@ const appFloat =
             }
         });
     },
-    confirmEdit: function( id, name, rate )
+    confirmEdit: function( id, title )
     {
         const html =
         `
             <div class="main-float">
                 <div class="window-top">
-                    <div>Ubah Data ${name}</div>
+                    <div>Ubah Data ${title}</div>
                     <div class="close-float" onclick="javascript:appFloat.closeApp();"><i class="bi bi-x-lg"></i></div>
                 </div>
                 <div class="window-content">
                     <input type="hidden" id="editId" name="id" value="${id}">
-                    <div class="title-activity">
+                    <div class="title-activity" style="margin-bottom: 180px;">
                         <span class="float-title">Nama karyawan <span class="text-danger">*</span></span>
                         <div class="form-control">
-                            <input type="" id="editName" name="name" value="${name}">
-                            <small id="nameNotify" class="text-danger"></small>
-                        </div>
-                    </div>
-                    <div class="title-project">
-                        <div class="float-title">Rate <span class="text-danger">*</span></div>
-                        <div class="form-control">
-                            <div class="rate-input-bar">
-                                <span class="rate-input-bar-rp">Rp</span>
-                                <div><input type="" name="rate" id="editRate" class="input-employee-rate" oninput="javascript:stringHelper.input_money(this);" value="${stringHelper.convert_money(rate)}"></div>
-                                <span class="rate-input-bar-hour">/ Jam</span>
-                            </div>
-                            <small id="rateNotify" class="text-danger"></small>
+                            <input type="" id="editTitle" name="name" value="${title}">
+                            <small id="titleNotify" class="text-danger"></small>
                         </div>
                     </div>
                     <div class="float-save-employee">
                         <span class="text-danger">* Wajib diisi</span>
                         <span class="inline-button">
                             <button class="float-button button-danger" onclick="javascript:appFloat.closeApp();">Batal</button>
-                            <button value="submit" class="float-button button-primary" onclick="javascript:appFloat.processEdit(${id}, $('#editName').val(), $('#editRate').val());"><span>Ubah Data</span></button>
+                            <button value="submit" class="float-button button-primary" onclick="javascript:appFloat.processEdit(${id}, $('#editTitle').val());"><span>Ubah Data</span></button>
                         </span>
                     </div>
                 </div>
@@ -734,8 +693,8 @@ const table =
     disable_page: false,
     order: function( context, order_by, sort_by )
     {
-        $(`#nameSort`).attr("onclick", `javascript:table.order(this, 'name', 'desc')`)
-        $(`#rateSort`).attr("onclick", `javascript:table.order(this, 'rate', 'desc')`)
+        $(`#titleSort`).attr("onclick", `javascript:table.order(this, 'title', 'desc')`)
+        $(`#totalEmployeeSort`).attr("onclick", `javascript:table.order(this, 'total_employee', 'desc')`)
         $(`#totalActivitySort`).attr("onclick", `javascript:table.order(this, 'total_activity', 'desc')`)
         $(`.filter-sort`).html(`<i class="bi bi-sort-down-alt"></i>`);
 
@@ -753,12 +712,13 @@ const table =
 
         switch( order_by )
         {
-            case "name":
-            case "rate":
+            case "title":
+            case "total_employee":
             case "total_activity":
                 table.query_order_by = order_by;
                 table.query_sort_by = sort_by;
                 table.targetPage(table.query_page, table.query_limit, table.query_search);
+                // alert();
             break;
             default:
             break;
@@ -839,7 +799,7 @@ const table =
     },
     setPagination: function ( target, limit )
     {
-        urlBrowserBar.set(`/employee?page=${target}&limit=${limit}` + ( table.query_search !== "" ? `&search=${table.query_search}` : "" ) +`&order_by=${table.query_order_by}&sort_by=${table.query_sort_by}`);
+        urlBrowserBar.set(`/project?page=${target}&limit=${limit}` + ( table.query_search !== "" ? `&search=${table.query_search}` : "" ) +`&order_by=${table.query_order_by}&sort_by=${table.query_sort_by}`);
         paginate.clear();
         const pages = table.pageOrder(target, table.max_page, limit);
         pages.map( page => {
@@ -900,7 +860,7 @@ const table =
         table.query_page = page;
         
         $.ajax({
-            url: `/employee/list?page=${page}&limit=${limit}&search=${table.query_search}&order_by=${table.query_order_by}&sort_by=${table.query_sort_by}`,
+            url: `/project/list?page=${page}&limit=${limit}&search=${table.query_search}&order_by=${table.query_order_by}&sort_by=${table.query_sort_by}`,
             type: "POST",
             headers: { "X-CSRF-Token": G_csrfToken },
             statusCode:
@@ -992,16 +952,17 @@ const table =
                 {
                     currator -= 1;
 
+                    const totalEmployee = parseInt(data[i].total_employee);
                     const totalActivity = parseInt(data[i].total_activity);
                     let row = `
                     	<tr>
-	                        <td>${data[i].name}</td>
-	                        <td>Rp${stringHelper.number_format((data[i].rate).replace(/\..*$/g, ""))},-</td>
+	                        <td>${data[i].title}</td>
+	                        <td>${totalEmployee === 0 ? 'Belum ada': totalEmployee} karyawan</td>
 	                        <td>${totalActivity === 0 ? 'Belum ada': totalActivity} kegiatan</td>
 	                        <td>
 	                            <div class="action-table">
-	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmEdit('${data[i].id}', '${data[i].name}', '${data[i].rate}');"><i class="bi bi-pencil-square edit"></i></span>
-	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmDelete(${data[i].id}, '${data[i].name}', ${totalActivity});"><i class="bi bi-trash-fill delete"></i></span>
+	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmEdit('${data[i].id}', '${data[i].title}');"><i class="bi bi-pencil-square edit"></i></span>
+	                                <span class="icon-pointer" onclick="javascript:appFloat.confirmDelete(${data[i].id}, '${data[i].title}', ${totalEmployee}, ${totalActivity});"><i class="bi bi-trash-fill delete"></i></span>
 	                            </div>
 	                        </td>
 	                    </tr>

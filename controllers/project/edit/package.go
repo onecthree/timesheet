@@ -13,8 +13,7 @@ import(
 
 type Employee struct {
 	Id      string `json:"id" form:"id"` 
-    Name 	string `json:"name" form:"name"` 
-    Rate    string `json:"rate" form:"rate"`
+    Title 	string `json:"title" form:"title"` 
 }
 
 func isPostQueryValid( ginContext *gin.Context ) bool {
@@ -36,11 +35,7 @@ func isPostQueryValid( ginContext *gin.Context ) bool {
 		return false
 	}
 
-	if len(employee.Rate) == 0 {
-		return false
-	}
-
-	if len(employee.Name) == 0 {
+	if len(employee.Title) == 0 {
 		return false
 	}
 
@@ -54,36 +49,19 @@ func isPostQueryValid( ginContext *gin.Context ) bool {
 	}
 
     // fmt.Printf("das6\n")
-    nameRegex, err := regexp.Compile(`[^a-zA-Z0-9\s+]`)
+    titleRegex, err := regexp.Compile(`[^a-zA-Z0-9\s+]`)
     if err != nil {
     	return false
     }
 
-    // fmt.Printf("das7 -%v-\n", employee.Name)
-    if len(nameRegex.FindAllString(employee.Name, 1)) > 0 {
+    // fmt.Printf("das7 -%v-\n", employee.Title)
+    if len(titleRegex.FindAllString(employee.Title, 1)) > 0 {
     	return false
     }
 
-    if len(employee.Name) < 6 || len(employee.Name) > 30 {
+    if len(employee.Title) < 6 || len(employee.Title) > 30 {
     	return false
     }
-
-    // fmt.Printf("das8\n")
-    rateRegex, err := regexp.Compile(`^(0|[1-9][0-9]*)$`)
-    if err != nil {
-    	return false
-    }
-
-    // fmt.Printf("das9 -%v-\n", employee.Rate)
-    if len(rateRegex.FindAllString(employee.Rate, 1)) < 1 {
-    	return false
-    }
-
-    if len(employee.Rate) > 13 {
-    	return false
-    }
-
-    // fmt.Printf("das10\n")
 
 	return true
 }
@@ -94,22 +72,24 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) ( int, string, bool ) {
 	}
 
 	var dataCheckQuery string
-	dataCheckQuery += database.Query(`SELECT COUNT(employee.id) as total`);
-	dataCheckQuery += database.Query(`FROM employee`);
-	dataCheckQuery += database.Query(`WHERE employee.id = `+ ginContext.PostForm("id"));
+	dataCheckQuery += database.Query(`SELECT COUNT(project.id) as total`);
+	dataCheckQuery += database.Query(`FROM project`);
+	dataCheckQuery += database.Query(`WHERE project.id = `+ ginContext.PostForm("id"));
 
 	dataExists := database.QueryExec(db, dataCheckQuery)
 
 	if dataExists[0]["total"] == "0" {
-		return http.StatusNotFound, "Employee id is not exists [0]", true
+		return http.StatusNotFound, "Project id is not exists [0]", true
 	}
 
 	var updateQuery string
-	updateQuery += database.Query(`UPDATE employee`);
-	updateQuery += database.Query(`SET employee.name = '`+ ginContext.PostForm("name") +`', employee.rate = `+ ginContext.PostForm("rate") +``);
-	updateQuery += database.Query(`WHERE employee.id = `+ ginContext.PostForm("id"));
+	updateQuery += database.Query(`UPDATE project`);
+	updateQuery += database.Query(`SET project.title = '`+ ginContext.PostForm("title") +`'`);
+	updateQuery += database.Query(`WHERE project.id = `+ ginContext.PostForm("id"));
 
 	database.QueryExec(db, updateQuery)
+
+	fmt.Printf("DAPET QUERY INI: %v", updateQuery)
 
 	return http.StatusOK, "OK", false
 }

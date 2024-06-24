@@ -2,6 +2,7 @@ package list
 
 import(
 	"fmt"
+	"regexp"
 	"strconv"
 	"net/http"
 	"database/sql"
@@ -40,6 +41,15 @@ func getQuerySearch( ginContext *gin.Context ) string {
 		return ""
 	}
 
+	searchRegex, err := regexp.Compile(`[^a-zA-Z0-9\s+]`)
+    if err != nil {
+    	return ""
+    }
+
+    if len(searchRegex.FindAllString(querySearch, 1)) > 0 {
+    	return ""
+    }
+    
 	return querySearch
 }
 
@@ -150,7 +160,7 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	}
 
 	querySearch := getQuerySearch(ginContext)
-	totalActivitySearch, totalActivitySearchOk := getTotalActivitySearch(ginContext)
+	// totalActivitySearch, totalActivitySearchOk := getTotalActivitySearch(ginContext)
 
 	var totalQuery string
 	totalQuery += database.Query(`SELECT COUNT(employee.id) AS total`)
@@ -162,9 +172,9 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	totalQuery += database.Query(`WHERE employee.expired != 1`)
 	totalQuery += database.Query(`AND ( LOWER(name) LIKE LOWER('%`+ querySearch +`%')`)
 	totalQuery += database.Query(`OR LOWER(rate) LIKE LOWER('%`+ querySearch +`%') )`)
-	if totalActivitySearchOk {
-		totalQuery += database.Query(`HAVING total_activity = `+ totalActivitySearch)	
-	}
+	// if totalActivitySearchOk {
+	// 	totalQuery += database.Query(`HAVING total_activity = `+ totalActivitySearch)	
+	// }
 
 	result["total"] = database.QueryExec(db, totalQuery)
 
@@ -217,11 +227,11 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 		dataQuery += database.Query("ORDER BY "+ orderBy +" "+ sortBy);	
 	}
 
-	if totalActivitySearchOk {
-		fmt.Printf("ADAAAAA1122\n")
-		dataQuery += database.Query(`GROUP BY employee.id`)
-		dataQuery += database.Query(`HAVING total_activity = `+ totalActivitySearch)	
-	}
+	// if totalActivitySearchOk {
+	// 	fmt.Printf("ADAAAAA1122\n")
+	// 	dataQuery += database.Query(`GROUP BY employee.id`)
+	// 	dataQuery += database.Query(`HAVING total_activity = `+ totalActivitySearch)	
+	// }
 
 	dataQuery += database.Query(`LIMIT `+ limit)
 	// if querySearch != "" || orderBy != "default" {

@@ -9,8 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
-    <script src="/static/js/employee.js"></script>
-    <title>Daftar Karyawan - {{ .appName }}</title>
+    <script src="/static/js/project.js"></script>
+    <title>Daftar Proyek - {{ .appName }}</title>
     <style>
         body
         {
@@ -1055,12 +1055,12 @@
                 <div></div>
                 <div class="navbar-target">
                     <div class="links">
-                        <a href="/employee"class="active">Daftar Karyawan</a></a>
-                        <span class="border"></span>
+                        <a href="/employee"class="non-active">Daftar Proyek</a></a>
+                        <span class="non-border"></span>
                     </div>
                     <div class="links">
-                        <a href="/project"class="non-active">Daftar Proyek</a></a>
-                        <span class="non-border"></span>
+                        <a href="/project"class="active">Daftar Proyek</a></a>
+                        <span class="border"></span>
                     </div>
                     <div class="links">
                         <a href="/activity" class="non-active">Daftar Kegiatan</a></a>
@@ -1078,8 +1078,8 @@
                 <div class="app-border">
                     <div class="middle-section">
                         <div class="vertical-space">
-                            <span class="title-bold">Daftar Karyawan</span>
-                            <a href="javascript:void(0);" onclick="javascript:appFloat.confirmCreate();" class="button"><i class="bi bi-plus-circle-fill"></i> Tambah karyawan</a>
+                            <span class="title-bold">Daftar Proyek</span>
+                            <a href="javascript:void(0);" onclick="javascript:appFloat.confirmCreate();" class="button"><i class="bi bi-plus-circle-fill"></i> Tambah proyek</a>
                         </div>
                         <div class="vertical-space">
                             <div class="row-show">
@@ -1108,8 +1108,8 @@
                     <div class="bottom-section">
                         <table>
                             <tr class="table-head">
-                                <th><div class="thead"><span>Nama Karyawan</span><div class="filter-sort" id="nameSort" onclick="javascript:table.order(this, 'name', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
-                                <th><div class="thead"><span>Harga Rate</span><div class="filter-sort" id="rateSort" onclick="javascript:table.order(this, 'rate', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Nama Proyek</span><div class="filter-sort" id="titleSort" onclick="javascript:table.order(this, 'title', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Total Karyawan</span><div class="filter-sort" id="totalEmployeeSort" onclick="javascript:table.order(this, 'total_employee', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
                                 <th><div class="thead"><span>Total Kegiatan</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
                                 <th style="text-align: center;">Aksi</th>
                             </tr>
@@ -1270,15 +1270,15 @@
             //     }, 400);
             // });
 
-            $(document).on('keypress', "#createName, #createRate", function (e) {
+            $(document).on('keypress', "#createTitle", function (e) {
                 if (e.key === 'Enter' || e.keyCode === 13) {
-                    appFloat.processCreate($('#createName').val(), $('#createRate').val());
+                    appFloat.processCreate($('#createTitle').val());
                 }
             });
 
-            $(document).on('keypress', "#editName, #editRate", function (e) {
+            $(document).on('keypress', "#editTitle", function (e) {
                 if (e.key === 'Enter' || e.keyCode === 13) {
-                    appFloat.processEdit($("#editId").val(), $('#editName').val(), $('#editRate').val());
+                    appFloat.processEdit($("#editId").val(), $('#editTitle').val());
                 }
             });
 

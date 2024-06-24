@@ -14,7 +14,12 @@ import(
 	controllersEmployeeList "github.com/onecthree/timesheet/controllers/employee/list"
 	controllersEmployeeDelete "github.com/onecthree/timesheet/controllers/employee/delete"
 
+	controllersProjectIndex "github.com/onecthree/timesheet/controllers/project/index"
+	controllersProjectCreate "github.com/onecthree/timesheet/controllers/project/create"
+	controllersProjectEdit "github.com/onecthree/timesheet/controllers/project/edit"
 	controllersProjectList "github.com/onecthree/timesheet/controllers/project/list"
+	controllersProjectDelete "github.com/onecthree/timesheet/controllers/project/delete"
+
 	"github.com/joho/godotenv"
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -82,23 +87,6 @@ func main() {
   		})
   	})
 
-	app.POST("/project/list", func( c *gin.Context ) {
-  		data, httpStatusCode, message, isControllersFailed := controllersProjectList.PostResponse(c, database)
-
-  		if isControllersFailed {
-	  		c.JSON(httpStatusCode, gin.H{
-				"success": false,
-				"message": message,
-			})	
-  		} else {
-	  		c.JSON(httpStatusCode, gin.H{
-	  			"success": true,
-	  			"message": message,
-				"data": data,
-			})	
-  		}
-  	})
-
 	app.POST("/employee/create", func( c *gin.Context ) {
   		httpStatusCode, message, _ := controllersEmployeeCreate.PostResponse(c, database)
 
@@ -148,6 +136,85 @@ func main() {
 
   	app.POST("/employee/delete", func( c *gin.Context ) {
   		httpStatusCode, message, _ := controllersEmployeeDelete.PostResponse(c, database)
+
+  		c.JSON(httpStatusCode, gin.H{
+			"success": false,
+			"message": message,
+		})	
+  	})
+
+  	app.GET("/project", func( c *gin.Context ) {
+  		data, httpStatusCode, _, isControllersFailed := controllersProjectIndex.GetResponse(c, database)
+
+  		if isControllersFailed {
+			c.Redirect(httpStatusCode, "/project?page=1&limit=10&order_by=default&sort_by=asc")
+  		} else {
+  			querySearch, ok := c.GetQuery("search")
+  			if ok == false {
+  				querySearch = ""
+  			}
+
+	  		c.HTML(http.StatusOK, "project.html", gin.H{
+	  			"appName": appName,
+	  			"maxPage": data[0]["maxPage"],
+	  			"currentPage": c.Query("page"),
+	  			"currentLimit": c.Query("limit"),
+	  			"currentSearch": querySearch,
+	  			"currentOrderBy": c.Query("order_by"),
+	  			"currentSortBy": c.Query("sort_by"),
+	  		})
+  		}
+  	})
+
+	app.POST("/project/create", func( c *gin.Context ) {
+  		httpStatusCode, message, _ := controllersProjectCreate.PostResponse(c, database)
+
+  		c.JSON(httpStatusCode, gin.H{
+			"success": false,
+			"message": message,
+		})	
+  	})
+
+	app.POST("/project/edit", func( c *gin.Context ) {
+  		httpStatusCode, message, _ := controllersProjectEdit.PostResponse(c, database)
+
+  		c.JSON(httpStatusCode, gin.H{
+			"success": false,
+			"message": message,
+		})	
+  	})
+
+  	app.POST("/project/list", func( c *gin.Context ) {
+  		data, httpStatusCode, message, isControllersFailed := controllersProjectList.PostResponse(c, database)
+
+  		if isControllersFailed {
+	  		c.JSON(httpStatusCode, gin.H{
+				"success": false,
+				"message": message,
+			})	
+  		} else {
+  			total := "0"
+  			if len(data["total"]) > 0 {
+  				total = data["total"][0]["total"]
+  			}
+
+  			maxPage := "0"
+  			if len(data["maxPage"]) > 0 {
+  				maxPage = data["maxPage"][0]["maxPage"]
+  			}
+
+	  		c.JSON(httpStatusCode, gin.H{
+	  			"success": true,
+	  			"message": message,
+				"data": data["data"],
+				"total": total,
+				"maxPage": maxPage,
+			})	
+  		}
+  	})
+
+  	app.POST("/project/delete", func( c *gin.Context ) {
+  		httpStatusCode, message, _ := controllersProjectDelete.PostResponse(c, database)
 
   		c.JSON(httpStatusCode, gin.H{
 			"success": false,

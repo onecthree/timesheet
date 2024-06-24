@@ -25,9 +25,9 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) ( int, string, bool ) {
 	}
 
 	var dataCheckQuery string
-	dataCheckQuery += database.Query(`SELECT COUNT(employee.id) as total`);
-	dataCheckQuery += database.Query(`FROM employee`);
-	dataCheckQuery += database.Query(`WHERE employee.id = `+ ginContext.Query("id"));
+	dataCheckQuery += database.Query(`SELECT COUNT(project.id) as total`);
+	dataCheckQuery += database.Query(`FROM project`);
+	dataCheckQuery += database.Query(`WHERE project.id = `+ ginContext.Query("id"));
 
 	dataExists := database.QueryExec(db, dataCheckQuery)
 
@@ -35,12 +35,19 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) ( int, string, bool ) {
 		return http.StatusNotFound, "Employee id is not exists [0]", true
 	}
 
-	var deleteQuery string
-	deleteQuery += database.Query(`UPDATE employee`);
-	deleteQuery += database.Query(`SET employee.expired = 1`);
-	deleteQuery += database.Query(`WHERE employee.id = `+ ginContext.Query("id") +`;`);
+	var deleteProjectQuery string
+	deleteProjectQuery += database.Query(`UPDATE project`);
+	deleteProjectQuery += database.Query(`SET project.expired = 1`);
+	deleteProjectQuery += database.Query(`WHERE project.id = `+ ginContext.Query("id"));
 
-	database.QueryExec(db, deleteQuery)
+	database.QueryExec(db, deleteProjectQuery)
+
+	var deleteActivityQuery string
+	deleteActivityQuery += database.Query(`UPDATE activity`);
+	deleteActivityQuery += database.Query(`SET activity.expired = 1`);
+	deleteActivityQuery += database.Query(`WHERE activity.project_id = `+ ginContext.Query("id"));
+
+	database.QueryExec(db, deleteActivityQuery)
 
 	return http.StatusOK, "OK", false
 }
