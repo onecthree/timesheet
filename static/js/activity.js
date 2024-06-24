@@ -48,7 +48,7 @@ const roles =
                 {
                     // G_csrfToken = response.getResponseHeader("X-CSRF-Token");
                     $("#roleSearchResult").html(`<div class="role-result-line">
-                        <div class="role-name text-muted">Ketik untuk pencarian</div>
+                        <div class="role-name text-muted">Ketik untuk pencarian dan klik untuk memilih</div>
                     </div>`);
                 },
             },
@@ -261,16 +261,16 @@ const appFloat =
                 console.log("TIME TIME", timeStart, timeEnd);
 
                 if( dateStart.length === 0 )
-                    return $("#dateStartNotify").html("Kolom harus terisi");
+                    return $("#dateStartNotify").html("Kolom harus terisi"); // DD MMM YYYY
 
                 if(! moment(dateStart, "DD/MM/YYYY", true).isValid() )
-                    return $("#timeStartNotify").html("Format tidak didukung");
+                    return $("#dateStartNotify").html("Format tidak didukung");
 
                 if( dateEnd.length === 0 )
                     return $("#dateEndNotify").html("Kolom harus terisi");
 
                 if(! moment(dateEnd, "DD/MM/YYYY", true).isValid() )
-                    return $("#timeStartNotify").html("Format tidak didukung");
+                    return $("#dateEndNotify").html("Format tidak didukung");
 
                 if( timeStart.length === 0 )
                     return $("#timeStartNotify").html("Kolom harus terisi");
@@ -282,7 +282,7 @@ const appFloat =
                     return $("#timeEndNotify").html("Kolom harus terisi");
 
                 if(! timeEnd.match(/^([01][0-9]|2[0-3]):([0-5][0-9])$/g) )
-                    return $("#timeStartNotify").html("Format tidak didukung");
+                    return $("#timeEndNotify").html("Format tidak didukung");
 
                 if( !titleInput.length )
                     return $("#titleNotify").html("Kolom harus terisi");
@@ -313,7 +313,7 @@ const appFloat =
                     </div>
                 </div>
                 <div class="app-pop-title">Berhasil</div>
-                <div class="app-pop-desc">Menambahkan karyawan baru</div>
+                <div class="app-pop-desc">Menambahkan kegiatan baru</div>
             </div>
         `;
 
@@ -375,7 +375,8 @@ const appFloat =
     {
         (function()
         {
-            $("#dateStartNotify, #dateEndNotify, #timeStartNotify, #timeEndNotify, #titleNotify, #projectNotify").html("&nbsp;");
+            $("#dateStartNotify, #dateEndNotify, #timeStartNotify, #timeEndNotify").html("&nbsp;");
+            $("#titleNotify, #projectNotify").html("");
         })();
 
         $("#createName, #createRate").attr("disabled", true);
@@ -486,7 +487,7 @@ const appFloat =
                         <div class="parent-ww">
                             <div id="roleSearchResult" style="display: none;">
                                 <div class="role-result-line">
-                                    <div class="role-name text-muted">Ketik untuk pencarian</div>
+                                    <div class="role-name text-muted">Ketik untuk pencarian dan klik untuk memilih</div>
                                 </div>
                             </div>
                         </div>
@@ -657,7 +658,8 @@ const appFloat =
     {
         (function()
         {
-            $("#titleNotify, #rateNotify").html("");
+            $("#dateStartNotify, #dateEndNotify, #timeStartNotify, #timeEndNotify").html("&nbsp;");
+            $("##titleNotify, #projectNotify").html("");
         })();
 
         $("#editName, #editRate").attr("disabled", true);
@@ -771,7 +773,7 @@ const appFloat =
                         <div class="parent-ww">
                             <div id="roleSearchResult" style="display: none;">
                                 <div class="role-result-line">
-                                    <div class="role-name text-muted">Ketik untuk pencarian</div>
+                                    <div class="role-name text-muted">Ketik untuk pencarian dan klik untuk memilih</div>
                                 </div>
                             </div>
                         </div>
@@ -887,9 +889,13 @@ const table =
     disable_page: false,
     order: function( context, order_by, sort_by )
     {
-        $(`#titleSort`).attr("onclick", `javascript:table.order(this, 'title', 'desc')`)
-        $(`#totalEmployeeSort`).attr("onclick", `javascript:table.order(this, 'total_employee', 'desc')`)
-        $(`#totalActivitySort`).attr("onclick", `javascript:table.order(this, 'total_activity', 'desc')`)
+        $(`#activityTitleSort`).attr("onclick", `javascript:table.order(this, 'title', 'desc')`)
+        $(`#projectTitleSort`).attr("onclick", `javascript:table.order(this, 'project_title', 'desc')`)
+        $(`#dateStartSort`).attr("onclick", `javascript:table.order(this, 'date_start', 'desc')`)
+        $(`#dateEndSort`).attr("onclick", `javascript:table.order(this, 'date_end', 'desc')`)
+        $(`#timeStartSort`).attr("onclick", `javascript:table.order(this, 'time_start', 'desc')`)
+        $(`#timeEndSort`).attr("onclick", `javascript:table.order(this, 'time_end', 'desc')`)
+        $(`#durationSort`).attr("onclick", `javascript:table.order(this, 'duration', 'desc')`)
         $(`.filter-sort`).html(`<i class="bi bi-sort-down-alt"></i>`);
 
         switch( sort_by )
@@ -907,8 +913,12 @@ const table =
         switch( order_by )
         {
             case "title":
-            case "total_employee":
-            case "total_activity":
+            case "project_title":
+            case "date_start":
+            case "date_end":
+            case "time_start":
+            case "time_end":
+            case "duration":
                 table.query_order_by = order_by;
                 table.query_sort_by = sort_by;
                 table.targetPage(table.query_page, table.query_limit, table.query_search);
@@ -1131,7 +1141,7 @@ const table =
                         <tr><td colspan="8"></td></tr>
                         <tr><td colspan="8"></td></tr>
                         <tr><td colspan="8"></td></tr>
-                        <tr><td colspan="8" style="text-align: center;">Belum ada karyawan</td></tr>
+                        <tr><td colspan="8" style="text-align: center;">Belum ada kegiatan</td></tr>
                         <tr><td colspan="8"></td></tr>
                         <tr><td colspan="8"></td></tr>
                         <tr><td colspan="8"></td></tr>

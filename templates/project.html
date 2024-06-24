@@ -10,6 +10,8 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
     <script src="/static/js/project.js"></script>
+    <script src=" https://cdn.jsdelivr.net/npm/sweetalert2@11.12.0/dist/sweetalert2.all.min.js "></script>
+    <link href=" https://cdn.jsdelivr.net/npm/sweetalert2@11.12.0/dist/sweetalert2.min.css " rel="stylesheet">
     <title>Daftar Proyek - {{ .appName }}</title>
     <style>
         body
@@ -1063,7 +1065,7 @@
                         <span class="border"></span>
                     </div>
                     <div class="links">
-                        <a href="/activity" class="non-active">Daftar Kegiatan</a></a>
+                        <a href="javascript:void(0);" onclick="javascript:showEmployeeRedirect();" class="non-active">Daftar Kegiatan</a></a>
                         <span class="non-border"></span>
                     </div>
                     <div class="links">
@@ -1096,7 +1098,7 @@
                             <div id="search">
                                 <i class="bi bi-search search-icon"></i>
                                 <form>
-                                    <input type="text" id="searchQuery" name="keysearch" oninput="javascript:onSearch(this.value);">
+                                    <input type="text" id="searchQuery" name="keysearch" oninput="javascript:onSearch(this.value);" placeholder="Cari untuk judul proyek">
                                 </form>
                             </div>
                             <div class="filter-button" onclick="javascript:table.redraw();">
@@ -1173,7 +1175,19 @@
         </div>
     </div>
     <script>
-        // return false;
+        let G_csrfToken = "payment_account_bcc8df429ee9a8f472edb732c3174a19";
+        table.query_page = parseInt({{ .currentPage }}); // current page
+        table.query_limit = parseInt({{ .currentLimit }}); // current page
+        table.query_search = {{ .currentSearch }}; // current page
+        table.query_order_by = {{ .currentOrderBy }};
+        table.query_sort_by = {{ .currentSortBy }};
+        table.max_page = parseInt({{ .maxPage }}); // pagination count
+
+        let G_onRoleSearchState = 0;
+        let G_onRoleSearchKeywords = [];
+        let G_onKeypress = false;
+        let G_onRoleSelected = false;
+
         function showAddActivity()
         {
             $("#float-container").show();
@@ -1189,19 +1203,6 @@
             }, 250);
         }
 
-        let G_csrfToken = "payment_account_bcc8df429ee9a8f472edb732c3174a19";
-        table.query_page = parseInt({{ .currentPage }}); // current page
-        table.query_limit = parseInt({{ .currentLimit }}); // current page
-        table.query_search = {{ .currentSearch }}; // current page
-        table.query_order_by = {{ .currentOrderBy }};
-        table.query_sort_by = {{ .currentSortBy }};
-        table.max_page = parseInt({{ .maxPage }}); // pagination count
-
-        let G_onRoleSearchState = 0;
-        let G_onRoleSearchKeywords = [];
-        let G_onKeypress = false;
-        let G_onRoleSelected = false;
-
         function onSearch( keyword )
         {
                 G_onRoleSearchState += 1;
@@ -1214,6 +1215,17 @@
                     }
                     G_onRoleSearchState -= 1;
                 }, 700); 
+        }
+
+        function showEmployeeRedirect()
+        {
+            Swal.fire({
+              html: `<span class="nunito">Untuk melihat daftar kegiatan, klik nama karyawan di Daftar Karyawan</span>`,
+              imageUrl: "/static/img/guide.png",
+              imageWidth: 667,
+              imageHeight: 240,
+              imageAlt: "Custom image"
+            });
         }
 
         $(document).ready( function()

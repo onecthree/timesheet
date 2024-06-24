@@ -38,7 +38,7 @@ func isPostQueryValid( ginContext *gin.Context ) bool {
 	}
 
 	order_by, exists := ginContext.GetQuery("order_by")
-	if exists == false || len(order_by) == 0 || (order_by != "default" && order_by != "title" && order_by != "total_employee" && order_by != "total_activity") {
+	if exists == false || len(order_by) == 0 || (order_by != "default" && order_by != "title" && order_by != "project_title" && order_by != "date_start" && order_by != "date_end" && order_by != "time_start" && order_by != "time_end" && order_by != "duration") {
 		return false
 	}
 

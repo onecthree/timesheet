@@ -15,6 +15,8 @@
     <script src="/static/js/activity.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js" integrity="sha512-s5u/JBtkPg+Ff2WEr49/cJsod95UgLHbC00N/GglqdQuLnYhALncz8ZHiW/LxDRGduijLKzeYb7Aal9h3codZA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.css" integrity="sha512-LT9fy1J8pE4Cy6ijbg96UkExgOjCqcxAC7xsnv+mLJxSvftGVmmc236jlPTZXPcBRQcVOWoK1IJhb1dAjtb4lQ==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src=" https://cdn.jsdelivr.net/npm/sweetalert2@11.12.0/dist/sweetalert2.all.min.js "></script>
+    <link href=" https://cdn.jsdelivr.net/npm/sweetalert2@11.12.0/dist/sweetalert2.min.css " rel="stylesheet">
     <title>Daftar Kegiatan - {{ .appName }}</title>
     <style>
         body
@@ -1095,7 +1097,7 @@
                         <span class="non-border"></span>
                     </div>
                     <div class="links">
-                        <a href="/activity" class="active">Daftar Kegiatan</a></a>
+                        <a href="javascript:void(0);" onclick="javascript:showEmployeeRedirect();" class="active">Daftar Kegiatan</a></a>
                         <span class="border"></span>
                     </div>
                     <div class="links">
@@ -1139,7 +1141,7 @@
                             <div id="search">
                                 <i class="bi bi-search search-icon"></i>
                                 <form>
-                                    <input type="text" id="searchQuery" name="keysearch" oninput="javascript:onSearch(this.value);">
+                                    <input type="text" id="searchQuery" name="keysearch" oninput="javascript:onSearch(this.value);" placeholder="Cari untuk kegiatan dan proyek">
                                 </form>
                             </div>
                             <div class="filter-button" onclick="javascript:table.redraw();">
@@ -1151,13 +1153,13 @@
                     <div class="bottom-section">
                         <table>
                             <tr class="table-head">
-                                <th><div class="thead"><span>Judul Kegiatan</span><div class="filter-sort" id="titleSort" onclick="javascript:table.order(this, 'title', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
-                                <th><div class="thead"><span>Nama Proyek</span><div class="filter-sort" id="totalEmployeeSort" onclick="javascript:table.order(this, 'total_employee', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
-                                <th><div class="thead"><span>Tanggal Mulai</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
-                                <th><div class="thead"><span>Tanggal Berakhir</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
-                                <th><div class="thead"><span>Waktu Mulai</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
-                                <th><div class="thead"><span>Waktu Berakhir</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
-                                <th><div class="thead"><span>Durasi</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Judul Kegiatan</span><div class="filter-sort" id="activityTitleSort" onclick="javascript:table.order(this, 'title', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Nama Proyek</span><div class="filter-sort" id="projectTitleSort" onclick="javascript:table.order(this, 'project_title', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Tanggal Mulai</span><div class="filter-sort" id="dateStartSort" onclick="javascript:table.order(this, 'date_start', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Tanggal Berakhir</span><div class="filter-sort" id="dateEndSort" onclick="javascript:table.order(this, 'date_end', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Waktu Mulai</span><div class="filter-sort" id="timeStartSort" onclick="javascript:table.order(this, 'time_start', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Waktu Berakhir</span><div class="filter-sort" id="timeEndSort" onclick="javascript:table.order(this, 'time_end', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Durasi</span><div class="filter-sort" id="durationSort" onclick="javascript:table.order(this, 'duration', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
                                 <th style="text-align: center;">Aksi</th>
                             </tr>
                             <tbody class="table-body-placeholder">
@@ -1211,9 +1213,13 @@
                                  </div>
                             </div>
                         </div>
+                        <div class="duration-row">
+                            <span>Total durasi</span>
+                            <span>—</span>
+                        </div>
                         <div class="loan-row">
-                            <!-- <span>Total pendapatan</span>
-                            <span>—</span> -->
+                            <span>Total pendapatan</span>
+                            <span>—</span>
                         </div>
                     </div>
                 </div>
@@ -1221,22 +1227,6 @@
         </div>
     </div>
     <script>
-        // return false;
-        function showAddActivity()
-        {
-            $("#float-container").show();
-            $("#float-container").animate({
-                opacity: 1,
-            }, 150);
-
-            setTimeout( function()
-            {
-                $("#float-app").show("fade", {
-                    direction: "top"
-                }, 300);
-            }, 250);
-        }
-
         let G_csrfToken = "payment_account_bcc8df429ee9a8f472edb732c3174a19";
         table.query_page = parseInt({{ .currentPage }}); // current page
         table.query_limit = parseInt({{ .currentLimit }}); // current page
@@ -1253,6 +1243,21 @@
         let datepickerOnce = false;
         let timepickerOnce = false;
 
+        function showAddActivity()
+        {
+            $("#float-container").show();
+            $("#float-container").animate({
+                opacity: 1,
+            }, 150);
+
+            setTimeout( function()
+            {
+                $("#float-app").show("fade", {
+                    direction: "top"
+                }, 300);
+            }, 250);
+        }
+
         function onSearch( keyword )
         {
                 G_onRoleSearchState += 1;
@@ -1265,6 +1270,17 @@
                     }
                     G_onRoleSearchState -= 1;
                 }, 700); 
+        }
+
+        function showEmployeeRedirect()
+        {
+            Swal.fire({
+              html: `<span class="nunito">Untuk melihat daftar kegiatan, klik nama karyawan di Daftar Karyawan</span>`,
+              imageUrl: "/static/img/guide.png",
+              imageWidth: 667,
+              imageHeight: 240,
+              imageAlt: "Custom image"
+            });
         }
 
         $(document).ready( function()

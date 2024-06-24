@@ -47,7 +47,7 @@ func isGetQueryValid( ginContext *gin.Context ) (string, bool) {
 	}
 
 	order_by, exists := ginContext.GetQuery("order_by")
-	if exists == false || len(order_by) == 0 || (order_by != "default" && order_by != "name" && order_by != "rate" && order_by != "total_activity") {
+	if exists == false || len(order_by) == 0 || (order_by != "default" && order_by != "title" && order_by != "project_title" && order_by != "date_start" && order_by != "date_end" && order_by != "time_start" && order_by != "time_end" && order_by != "duration") {
 		return "", false
 	}
 
@@ -83,17 +83,15 @@ func getMaxPage( totalData string, limitData string ) (string, bool) {
 func GetResponse( ginContext *gin.Context, db *sql.DB ) ([]map[string]string, int, string, bool) {
 	var emptyData []map[string]string
 
-	id, isGetQueryAreValid := isGetQueryValid(ginContext)
+	_, isGetQueryAreValid := isGetQueryValid(ginContext)
 	if isGetQueryAreValid == false {
 		return emptyData, http.StatusFound, "Request query are invalid", true
 	}
 
 	var query string
-	query += database.Query(`SELECT COUNT(activity.id) AS totalData, employee.id, employee.name, employee.rate`)
-	query += database.Query(`FROM activity`)
-	query += database.Query(`INNER JOIN employee ON employee.id = activity.employee_id`)
-	query += database.Query("WHERE activity.expired != 1")
-	query += database.Query(`AND activity.employee_id = `+ id)
+	query += database.Query(`SELECT COUNT(employee.id) AS totalData, employee.id, employee.name, employee.rate`)
+	query += database.Query(`FROM employee`)
+	query += database.Query("WHERE employee.expired != 1")
 
 	result := database.QueryExec(db, query)
 

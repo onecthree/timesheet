@@ -685,7 +685,7 @@ const table =
     query_page: 1,
     query_limit: 10,
     query_search: "",
-    query_order_by: "name",
+    query_order_by: "title",
     query_sort_by: "asc",
     query_total_activity: false,
     min_page: 1,
@@ -936,7 +936,7 @@ const table =
                         <tr><td colspan="4"></td></tr>
                         <tr><td colspan="4"></td></tr>
                         <tr><td colspan="4"></td></tr>
-                        <tr><td colspan="4" style="text-align: center;">Belum ada karyawan</td></tr>
+                        <tr><td colspan="4" style="text-align: center;">Belum ada proyek</td></tr>
                         <tr><td colspan="4"></td></tr>
                         <tr><td colspan="4"></td></tr>
                         <tr><td colspan="4"></td></tr>

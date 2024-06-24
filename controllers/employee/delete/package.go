@@ -35,12 +35,19 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) ( int, string, bool ) {
 		return http.StatusNotFound, "Employee id is not exists [0]", true
 	}
 
-	var deleteQuery string
-	deleteQuery += database.Query(`UPDATE employee`);
-	deleteQuery += database.Query(`SET employee.expired = 1`);
-	deleteQuery += database.Query(`WHERE employee.id = `+ ginContext.Query("id") +`;`);
+	var deleteEmployeeQuery string
+	deleteEmployeeQuery += database.Query(`UPDATE employee`);
+	deleteEmployeeQuery += database.Query(`SET employee.expired = 1`);
+	deleteEmployeeQuery += database.Query(`WHERE employee.id = `+ ginContext.Query("id") +`;`);
 
-	database.QueryExec(db, deleteQuery)
+	database.QueryExec(db, deleteEmployeeQuery)
+
+	var deleteActivityQuery string
+	deleteActivityQuery += database.Query(`UPDATE activity`);
+	deleteActivityQuery += database.Query(`SET activity.expired = 1`);
+	deleteActivityQuery += database.Query(`WHERE activity.employee_id = `+ ginContext.Query("id") +`;`);
+
+	database.QueryExec(db, deleteActivityQuery)
 
 	return http.StatusOK, "OK", false
 }
