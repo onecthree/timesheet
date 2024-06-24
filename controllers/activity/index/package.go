@@ -83,7 +83,7 @@ func getMaxPage( totalData string, limitData string ) (string, bool) {
 func GetResponse( ginContext *gin.Context, db *sql.DB ) ([]map[string]string, int, string, bool) {
 	var emptyData []map[string]string
 
-	_, isGetQueryAreValid := isGetQueryValid(ginContext)
+	id, isGetQueryAreValid := isGetQueryValid(ginContext)
 	if isGetQueryAreValid == false {
 		return emptyData, http.StatusFound, "Request query are invalid", true
 	}
@@ -92,6 +92,7 @@ func GetResponse( ginContext *gin.Context, db *sql.DB ) ([]map[string]string, in
 	query += database.Query(`SELECT COUNT(employee.id) AS totalData, employee.id, employee.name, employee.rate`)
 	query += database.Query(`FROM employee`)
 	query += database.Query("WHERE employee.expired != 1")
+	query += database.Query(`AND employee.id = `+ id)
 
 	result := database.QueryExec(db, query)
 

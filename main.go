@@ -49,7 +49,12 @@ func main() {
 	database.SetMaxIdleConns(10)
 
 	appName := os.Getenv("APP_NAME")
-	app := gin.Default()	
+
+	if os.Getenv("APP_ENV") == "production" {
+		gin.SetMode(gin.ReleaseMode)	
+	}
+
+	app := gin.Default()
 
 	app.Static("/static", "./static");
 	app.LoadHTMLGlob("templates/*")
@@ -331,5 +336,5 @@ func main() {
   	})
   	/** Application Route }} **/
 
-	app.Run()
+	app.Run(os.Getenv("APP_HOST"))
 }

@@ -114,7 +114,7 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) ( int, string, bool ) {
 	insertQuery += database.Query(`INSERT INTO activity`);
 	insertQuery += database.Query(`(project_id, employee_id, date_start, date_end, time_start, time_end, title)`);
 	insertQuery += database.Query(`VALUES`);
-	insertQuery += database.Query(`(1, 1, '`+ dateStart +`', '`+dateEnd+`', '`+ ginContext.PostForm("time_start") +`',`)
+	insertQuery += database.Query(`(`+ ginContext.PostForm("project_id") +`, `+ ginContext.PostForm("employee_id") +`, '`+ dateStart +`', '`+dateEnd+`', '`+ ginContext.PostForm("time_start") +`',`)
 	insertQuery += database.Query(`'`+ ginContext.PostForm("time_end") +`', '`+ ginContext.PostForm("title") +`')`);
 
 	database.QueryExec(db, insertQuery)
