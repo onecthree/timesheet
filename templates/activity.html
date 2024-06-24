@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.30.1/moment-with-locales.min.js" integrity="sha512-4F1cxYdMiAW98oomSLaygEwmCnIP38pb4Kx70yQYqRwLVCs3DbRumfBq82T08g/4LJ/smbFGFpmeFlQgoDccgg==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/static/js/activity.js"></script>
     <title>Daftar Kegiatan - {{ .appName }}</title>
     <style>
         body
@@ -163,7 +165,7 @@
 
         #app #app-section .app-border .middle-section
         {
-            margin-top: 80px;
+            margin-top: 50px;
             display: flex;
             flex-direction: row;
             justify-content: space-between;
@@ -214,7 +216,7 @@
             color: rgba(0, 0, 0, .4);
         }
 
-        #search-text
+        #searchQuery
         {
             font-size: 16px;
             border: 0px solid transparent;
@@ -234,6 +236,7 @@
             box-shadow: 1px 1px 5px rgba(0, 0, 0, .15);
             height: 45px;
             width: 45px;
+            cursor: pointer;
         }
 
         .filter-button .bi-filter
@@ -347,6 +350,7 @@
             display: flex;
             flex-direction: row;
             justify-content: space-between;
+/*            background: red;*/
         }
 
         .loan-row
@@ -374,13 +378,25 @@
             align-items: center;
             z-index: 9999;
             background: rgba(0, 0, 0, .5);
-            opacity: 0;
+/*            opacity: 0;*/
         }
 
         #float-app
         {
             height: 560px;
             width: 1000px;
+            background: #ffffff;
+            border-radius: 14px;
+            padding: 30px;
+        }
+
+        #float-alert
+        {
+            height: 190px;
+            width: 380px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
             background: #ffffff;
             border-radius: 14px;
             padding: 30px;
@@ -481,6 +497,16 @@
             align-items: center;
         }
 
+        .float-save-employee
+        {
+            margin-top: 80px;
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            justify-content: space-between;
+            align-items: center;
+        }
+
         .inline-button
         {
             display: flex;
@@ -488,7 +514,7 @@
             gap: 10px;
         }
 
-        .float-save .float-button
+        .float-button
         {
             display: flex;
             gap: 5px;
@@ -496,6 +522,7 @@
             align-items: center;
             border-radius: 5px;
             padding: 10px 20px 10px 20px;
+            font-weight: bold;
         }
 
         .button-primary
@@ -545,6 +572,46 @@
             display: flex;
             flex-direction: column;
             gap: 5px;
+/*            background: red;*/
+        }
+
+        .rate-input-bar
+        {
+            border: 1px solid rgba(0, 0, 0, .2);
+            border-radius: 5px;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+            height: 55px;
+            align-items: center;
+        }
+
+        .input-employee-rate
+        {
+            border: 0px solid transparent;
+            font-size: 15.5px;
+            padding: 12px;
+            padding-left: 18px;
+            width: 850px;
+        }
+
+        .rate-input-bar-rp
+        {
+            display: flex;
+            justify-content: flex-end;
+            color: rgba(0, 0, 0, .6);
+            width: 40px;
+            margin-left: 10px;
+        }
+
+        .rate-input-bar-hour
+        {
+            display: flex;
+            justify-content: flex-end;
+            color: rgba(0, 0, 0, .6);
+            width: 100px;
+            margin-right: 10px;
         }
 
         .text-small
@@ -558,84 +625,423 @@
             flex-direction: column;
             gap: 4px;
         }
-        
+
         a
         {
             padding: 0;
             text-decoration: none;
             color: black;
         }
+
+        .empty-pagination, .table-pagination
+        {
+            display: flex;
+            flex-direction: row;
+        }
+
+        table
+        {
+/*            border: 1px solid black;*/
+            table-layout: fixed;
+        }
+
+        th,
+        td
+        {
+/*            border: 1px solid black;*/
+            width: 100px;
+            overflow: hidden;
+        }
+
+        td {
+            height: 27px;
+        }
+
+        tr:nth-child(even)
+        {
+          background: rgba(0, 0, 0, .05);
+        }
+
+        tr:nth-child(odd):hover
+        {
+          background: rgba(0, 0, 0, .03);
+        }
+
+        tr:nth-child(even):hover
+        {
+          background: rgba(0, 0, 0, .08);
+        }
+
+        @-webkit-keyframes rotating /* Safari and Chrome */ {
+            from {
+                -webkit-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            to {
+                -webkit-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes rotating {
+            from {
+                -ms-transform: rotate(0deg);
+                -moz-transform: rotate(0deg);
+                -webkit-transform: rotate(0deg);
+                -o-transform: rotate(0deg);
+                transform: rotate(0deg);
+            }
+            to {
+                -ms-transform: rotate(360deg);
+                -moz-transform: rotate(360deg);
+                -webkit-transform: rotate(360deg);
+                -o-transform: rotate(360deg);
+                transform: rotate(360deg);
+            }
+        }
+
+        .rotating {
+            -webkit-animation: rotating .8s ease infinite;
+            -moz-animation: rotating .8s ease infinite;
+            -ms-animation: rotating .8s ease infinite;
+            -o-animation: rotating .8s ease infinite;
+            animation: rotating .8s ease infinite;
+        }
+
+        #redrawIcon
+        {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .btn, .btn-left-page, .btn-right-page
+        {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 1px solid rgba(0, 0, 0, .1);
+            background: rgba(0, 0, 0, .09);
+            border-radius: 4px;
+            height: 47px;
+            width: 47px;
+            cursor: pointer;
+        }
+
+
+        .btn:hover, .btn-left-page:hover, .btn-right-page:hover 
+        {
+            background: rgba(0, 0, 0, .1);
+        }
+
+        .pagination
+        {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+        }
+
+        .table-pagination
+        {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .disabled
+        {
+            opacity: .7;
+            cursor: not-allowed !important;
+        }
+
+        .float-alert
+        {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .d-none
+        {
+            display: none;
+        }
+
+        .alert-desc
+        {
+            display: flex;
+            justify-content: center;
+            padding-bottom: 12%;
+            align-items: center;
+            font-size: 20px;
+            height: 60%;
+/*            background: red;*/
+        }
+
+        .alert-button
+        {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            height: 20%;
+        }
+
+        .alert-same
+        {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+        }
+
+        .alert-button button
+        {
+            display: flex;
+            align-items: center;
+            height: 30px;
+            width: fit-content;
+            padding: 20px;
+            border-radius: 5px;
+        }
+
+        .icon-pointer
+        {
+            cursor: pointer;
+        }
+
+        .filter-sort
+        {
+            cursor: pointer;
+        }
+
+
+        .spinner
+        {
+          display: inline-block;
+          width: 20px;
+          height: 20px;
+          border: 3px solid rgba(0, 0, 0, .2);
+          border-radius: 50%;
+          border-top-color: rgba(0, 0, 0, .7);
+          animation: spin 1s ease-in-out infinite;
+          -webkit-animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin
+        {
+          to { -webkit-transform: rotate(360deg); }
+        }
+
+        @-webkit-keyframes spin
+        {
+          to { -webkit-transform: rotate(360deg); }
+        }
+
+        #appAlertConfirmButton
+        {
+            width: 135px;
+        }
+
+        .inline-button .button-primary
+        {
+            font-size: 14px;
+        }
+
+        .inline-button .button-primary
+        {
+            width: 200px;
+            height: 50px;
+        }
+
+
+        /**
+         * Extracted from: SweetAlert
+         * Modified by: Istiak Tridip
+         */
+        .success-checkmark {
+            width: 80px;
+            height: 115px;
+            margin: 0 auto;
+            
+            .check-icon {
+                width: 80px;
+                height: 80px;
+                position: relative;
+                border-radius: 50%;
+                box-sizing: content-box;
+                border: 4px solid #4CAF50;
+                
+                &::before {
+                    top: 3px;
+                    left: -2px;
+                    width: 30px;
+                    transform-origin: 100% 50%;
+                    border-radius: 100px 0 0 100px;
+                }
+                
+                &::after {
+                    top: 0;
+                    left: 30px;
+                    width: 60px;
+                    transform-origin: 0 50%;
+                    border-radius: 0 100px 100px 0;
+                    animation: rotate-circle 4.25s ease-in;
+                }
+                
+                &::before, &::after {
+                    content: '';
+                    height: 100px;
+                    position: absolute;
+                    background: #FFFFFF;
+                    transform: rotate(-45deg);
+                }
+                
+                .icon-line {
+                    height: 5px;
+                    background-color: #4CAF50;
+                    display: block;
+                    border-radius: 2px;
+                    position: absolute;
+                    z-index: 10;
+                    
+                    &.line-tip {
+                        top: 46px;
+                        left: 14px;
+                        width: 25px;
+                        transform: rotate(45deg);
+                        animation: icon-line-tip 0.75s;
+                    }
+                    
+                    &.line-long {
+                        top: 38px;
+                        right: 8px;
+                        width: 47px;
+                        transform: rotate(-45deg);
+                        animation: icon-line-long 0.75s;
+                    }
+                }
+                
+                .icon-circle {
+                    top: -4px;
+                    left: -4px;
+                    z-index: 10;
+                    width: 80px;
+                    height: 80px;
+                    border-radius: 50%;
+                    position: absolute;
+                    box-sizing: content-box;
+                    border: 4px solid rgba(76, 175, 80, .5);
+                }
+                
+                .icon-fix {
+                    top: 8px;
+                    width: 5px;
+                    left: 26px;
+                    z-index: 1;
+                    height: 85px;
+                    position: absolute;
+                    transform: rotate(-45deg);
+                    background-color: #FFFFFF;
+                }
+            }
+        }
+
+        @keyframes rotate-circle {
+            0% {
+                transform: rotate(-45deg);
+            }
+            5% {
+                transform: rotate(-45deg);
+            }
+            12% {
+                transform: rotate(-405deg);
+            }
+            100% {
+                transform: rotate(-405deg);
+            }
+        }
+
+        @keyframes icon-line-tip {
+            0% {
+                width: 0;
+                left: 1px;
+                top: 19px;
+            }
+            54% {
+                width: 0;
+                left: 1px;
+                top: 19px;
+            }
+            70% {
+                width: 50px;
+                left: -8px;
+                top: 37px;
+            }
+            84% {
+                width: 17px;
+                left: 21px;
+                top: 48px;
+            }
+            100% {
+                width: 25px;
+                left: 14px;
+                top: 45px;
+            }
+        }
+
+        @keyframes icon-line-long {
+            0% {
+                width: 0;
+                right: 46px;
+                top: 54px;
+            }
+            65% {
+                width: 0;
+                right: 46px;
+                top: 54px;
+            }
+            84% {
+                width: 55px;
+                right: 0px;
+                top: 35px;
+            }
+            100% {
+                width: 47px;
+                right: 8px;
+                top: 38px;
+            }
+        }
+
+        .app-float-main
+        {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .app-pop-title
+        {
+            font-weight: bold;
+            font-size: 30px;
+        }
+
+        .app-pop-desc
+        {
+            font-size: 20px;
+        }
+
+        small
+        {
+            font-size: 17px;
+        }
     </style>
 </head>
 <body>
     <div id="float-container" style="display: none;">
-        <div id="float-app" class="nunito" style="display: none">
-            <div class="window-top">
-                <div>Tambah Kegiatan Baru</div>
-                <div class="close-float" onclick="javascript:hideAddActivity();"><i class="bi bi-x-lg"></i></div>
-            </div>
-            <div class="window-content">
-                <div class="date-content">
-                    <div class="date-wrap">
-                        <span class="float-title">Tanggal mulai <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Tanggal berakhir <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-calendar-minus-fill"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Jam mulai <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-
-                    <div class="date-wrap">
-                        <span class="float-title">Jam berakhir <span class="text-danger">*</span></span>
-                        <div class="datetime-target">
-                            <div class="date-box"><span><input type="" name=""></span><span><i class="bi bi-clock"></i></span></div>
-                            <span class="text-danger text-small">Kolom harus terisi</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="title-activity">
-                    <span class="float-title">Judul kegiatan <span class="text-danger">*</span></span>
-                    <div class="form-control">
-                        <input type="" name="">
-                        <small class="text-danger">Kolom harus terisi</small>
-                    </div>
-                </div>
-                <div class="title-project">
-                    <span class="float-title">Nama proyek <span class="text-danger">*</span></span>
-                    <div class="form-control">
-                        <select class="form-select" aria-label="Default select example">
-                            <option value="1" selected>Pilih salah satu proyek</option>
-                            <option value="1">10</option>
-                            <option value="2">25</option>
-                            <option value="3">50</option>
-                        </select>
-                        <small class="text-danger">Kolom harus terisi</small>
-                    </div>
-                </div>
-                <div class="float-save">
-                    <span class="text-danger">* Wajib diisi</span>
-                    <span class="inline-button">
-                        <span class="float-button button-danger" onclick="javascript:hideAddActivity();">Lupakan</span>
-                        <span class="float-button button-primary">Buat kegiatan</span>
-                    </span>
-                </div>
-            </div>
-        </div>
+        <div id="float-alert" class="nunito" style="display: none;"></div>
+        <div id="float-app" class="nunito" style="display: none;"></div>
     </div>
     <div id="container">
         <div id="brand-section">
@@ -674,27 +1080,27 @@
                     <div class="top-section">
                         <div class="space-section">
                             <span class="title-info">Nama Karyawan</span>
-                            <span>Sultan Ilham</span>
+                            <span>{{ .employeeName }}</span>
                         </div>
                         <div class="space-section">
                             <span class="title-info">Rate</span>
-                            <span>Rp12.000 ,-</span>
+                            <span id="rateFix"></span>
                         </div>
                     </div>
 
                     <div class="middle-section">
                         <div class="vertical-space">
                             <span class="title-bold">Daftar Kegiatan</span>
-                            <span class="button" onclick="javascript:showAddActivity();"><i class="bi bi-plus-circle-fill"></i> Tambah kegiatan</span>
+                            <a href="javascript:void(0);" onclick="javascript:appFloat.confirmCreate();" class="button"><i class="bi bi-plus-circle-fill"></i> Tambah proyek</a>
                         </div>
                         <div class="vertical-space">
                             <div class="row-show">
                                 <span>Tampilkan</span>
                                 <div>
-                                    <select class="form-select" aria-label="Default select example">
-                                        <option value="1">10</option>
-                                        <option value="2">25</option>
-                                        <option value="3">50</option>
+                                    <select class="form-select" id="onTableLimitSelect">
+                                        <option value="10">10</option>
+                                        <option value="25">25</option>
+                                        <option value="50">50</option>
                                     </select>
                                 </div>
                                 <span>daftar</span>
@@ -702,11 +1108,11 @@
                             <div id="search">
                                 <i class="bi bi-search search-icon"></i>
                                 <form>
-                                    <input type="text" id="search-text" name="keysearch">
+                                    <input type="text" id="searchQuery" name="keysearch" oninput="javascript:onSearch(this.value);">
                                 </form>
                             </div>
-                            <div class="filter-button">
-                                <i class="bi bi-filter"></i>
+                            <div class="filter-button" onclick="javascript:table.redraw();">
+                                <span id="redrawIcon"><i class="bi bi-arrow-clockwise"></i></span>
                             </div>
                         </div>
                     </div>
@@ -714,40 +1120,69 @@
                     <div class="bottom-section">
                         <table>
                             <tr class="table-head">
-                                <th><div class="thead"><span>Judul Kegiatan</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
-                                <th><div class="thead"><span>Nama Proyek</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
-                                <th><div class="thead"><span>Tanggal Mulai</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
-                                <th><div class="thead"><span>Tanggal Berakhir</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
-                                <th><div class="thead"><span>Waktu Mulai</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
-                                <th><div class="thead"><span>Waktu Berakhir</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
-                                <th><div class="thead"><span>Durasi</span><span class="filter-1"><i class="bi bi-sort-down-alt"></i></span></div></th>
+                                <th><div class="thead"><span>Judul Kegiatan</span><div class="filter-sort" id="titleSort" onclick="javascript:table.order(this, 'title', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Nama Proyek</span><div class="filter-sort" id="totalEmployeeSort" onclick="javascript:table.order(this, 'total_employee', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Tanggal Mulai</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Tanggal Berakhir</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Waktu Mulai</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Waktu Berakhir</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
+                                <th><div class="thead"><span>Durasi</span><div class="filter-sort" id="totalActivitySort" onclick="javascript:table.order(this, 'total_activity', 'desc')"><i class="bi bi-sort-down-alt"></i></div></div></th>
                                 <th style="text-align: center;">Aksi</th>
                             </tr>
-                            <tbody>
+                            <tbody class="table-body-placeholder">
                                 <tr>
-                                    <td>Wireframing untuk Fitur Flow Bidding</td>
-                                    <td>UI Desain</td>
-                                    <td>1 Okt 2023</td>
-                                    <td>1 Okt 2023</td>
-                                    <td>08.00</td>
-                                    <td>16.00</td>
-                                    <td>8 Jam</td>
-                                    <td>
-                                        <div class="action-table">
-                                            <span><i class="bi bi-pencil-square edit"></i></span>
-                                            <span><i class="bi bi-trash-fill delete"></i></span>
-                                        </div>
-                                    </td>
+                                    <td colspan="8">&nbsp;</td>
                                 </tr>
+                                <tr>
+                                    <td colspan="8">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">&nbsp;</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="8">&nbsp;</td>
+                                </tr>
+
+                            </tbody>
+                            <tbody class="table-body">
                             </tbody>
                         </table>
                         <div class="duration-row">
-                            <span>Total durasi</span>
-                            <span>—</span>
+                            <div class="empty-pagination">&nbsp;</div>
+                            <div class="table-pagination">
+                                <div class="btn-left-page" onclick="javascript:table.beforePage();">
+                                    <div class="btn-secondary btn-before-page">
+                                        <i class="bi bi-caret-left-fill"></i>
+                                    </div>
+                                 </div>
+                                <div class="pagination"></div>
+                                <div class="btn-right-page" onclick="javascript:table.nextPage();">
+                                     <div class="btn-secondary btn-next-page"><i class="bi bi-caret-right-fill"></i>
+                                     </div>
+                                 </div>
+                            </div>
                         </div>
                         <div class="loan-row">
-                            <span>Total pendapatan</span>
-                            <span>—</span>
+                            <!-- <span>Total pendapatan</span>
+                            <span>—</span> -->
                         </div>
                     </div>
                 </div>
@@ -755,6 +1190,7 @@
         </div>
     </div>
     <script>
+        // return false;
         function showAddActivity()
         {
             $("#float-container").show();
@@ -770,28 +1206,80 @@
             }, 250);
         }
 
-         function hideAddActivity()
-        {
-            $("#float-app").hide("fade", {
-                direction: "top"
-            }, 300);
-            
-            setTimeout( function()
-            {
-                $("#float-container").animate({
-                    opacity: 0,
-                }, 200);
+        let G_csrfToken = "payment_account_bcc8df429ee9a8f472edb732c3174a19";
+        table.query_page = parseInt({{ .currentPage }}); // current page
+        table.query_limit = parseInt({{ .currentLimit }}); // current page
+        table.query_search = {{ .currentSearch }}; // current page
+        table.query_order_by = {{ .currentOrderBy }};
+        table.query_sort_by = {{ .currentSortBy }};
+        table.max_page = parseInt({{ .maxPage }}); // pagination count
 
-                setTimeout( function()
-                {
-                    $("#float-container").hide();
-                }, 400);
-            }, 300);
+        let G_onRoleSearchState = 0;
+        let G_onRoleSearchKeywords = [];
+        let G_onKeypress = false;
+        let G_onRoleSelected = false;
+
+        function onSearch( keyword )
+        {
+                G_onRoleSearchState += 1;
+                setTimeout(() => {
+                    if( G_onRoleSearchState === 1 )
+                    {
+                        // console.log(keyword);
+                        table.query_search = keyword;
+                        table.targetPage(table.query_page, table.query_limit, table.query_search);
+                    }
+                    G_onRoleSearchState -= 1;
+                }, 700); 
         }
 
         $(document).ready( function()
         {
+            moment.lang("id");
 
+            $("#rateFix").html(`Rp${stringHelper.convert_money("{{ .employeeRate }}")},-`);
+            // $("#searchQuery").on("keypress keyup", function()
+            // {
+            //     G_onKeypress = true;
+            // });
+
+            // $("html").on("click", function()
+            // {
+            //     G_onKeypress = false;
+            // });
+
+            // $("#searchQuery").on("focusout", function()
+            // {
+            //     setTimeout(() => {
+            //         if(! G_onKeypress )
+            //         {
+            //             console.log("asdasd", G_onKeypress);
+            //         }
+
+            //         G_onKeypress = false;
+            //     }, 400);
+            // });
+
+            $(document).on('keypress', "#createTitle", function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    appFloat.processCreate($('#createTitle').val());
+                }
+            });
+
+            $(document).on('keypress', "#editTitle", function (e) {
+                if (e.key === 'Enter' || e.keyCode === 13) {
+                    appFloat.processEdit($("#editId").val(), $('#editTitle').val());
+                }
+            });
+
+            $("#onTableLimitSelect").on("change", function()
+            {
+                const limit = parseInt(this.value);
+                table.query_limit = limit;
+                table.targetPage(table.query_page, limit, table.query_search);
+            });
+
+            table.targetPage(table.query_page, table.query_limit, table.query_search);
         });
     </script>
 </body>

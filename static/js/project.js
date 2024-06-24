@@ -978,10 +978,7 @@ const table =
             for( let i = 0; i < currator; i += 1 )
                 $(".table-body").append(`
 						<tr>
-	                        <td>&nbsp;</td>
-	                        <td>&nbsp;</td>
-	                        <td>&nbsp;</td>
-	                        <td>&nbsp;</td>
+                            <td colspan="4">&nbsp;</td>
 	                    </tr>
             	`);
         }

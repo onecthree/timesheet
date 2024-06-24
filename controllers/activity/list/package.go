@@ -3,6 +3,7 @@ package list
 import(
 	"fmt"
 	"regexp"
+	"strings"
 	"strconv"
 	"net/http"
 	"database/sql"
@@ -11,7 +12,21 @@ import(
 	"github.com/onecthree/timesheet/functions"
 )
 
-func isPostQueryValid( ginContext *gin.Context ) bool {
+func isGetQueryValid( ginContext *gin.Context ) (string, bool) {
+	slug := strings.Split(ginContext.Param("slug"), "-")
+
+	if len(slug) < 1 {
+		return "", false
+	}
+
+	if functions.IsNumeric(slug[0]) == false {
+		return "", false
+	}
+
+	return slug[0], true
+}
+
+func isPostQueryValid( ginContext *gin.Context ) bool {	
 	page, exists := ginContext.GetQuery("page")
 	if exists == false || len(page) == 0 || functions.IsNumeric(page) == false {
 		return false
@@ -23,7 +38,7 @@ func isPostQueryValid( ginContext *gin.Context ) bool {
 	}
 
 	order_by, exists := ginContext.GetQuery("order_by")
-	if exists == false || len(order_by) == 0 || (order_by != "default" && order_by != "name" && order_by != "rate" && order_by != "total_activity") {
+	if exists == false || len(order_by) == 0 || (order_by != "default" && order_by != "title" && order_by != "total_employee" && order_by != "total_activity") {
 		return false
 	}
 
@@ -49,7 +64,7 @@ func getQuerySearch( ginContext *gin.Context ) string {
     if len(searchRegex.FindAllString(querySearch, 1)) > 0 {
     	return ""
     }
-    
+
 	return querySearch
 }
 
@@ -150,8 +165,13 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	var emptyData map[string][]map[string]string
 	result := make(map[string][]map[string]string, 3)
 
-	if isPostQueryValid(ginContext) == false {
+	id, isGetQueryAreValid := isGetQueryValid(ginContext)
+	if isGetQueryAreValid == false {
 		return emptyData, http.StatusBadRequest, "Request query are invalid [0]", true
+	}
+
+	if isPostQueryValid(ginContext) == false {
+		return emptyData, http.StatusBadRequest, "Request body are invalid [1]", true
 	}
 
 	limit, ok := getLimitQueryAsLimit(ginContext)
@@ -163,19 +183,18 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	// totalActivitySearch, totalActivitySearchOk := getTotalActivitySearch(ginContext)
 
 	var totalQuery string
-	totalQuery += database.Query(`SELECT COUNT(employee.id) AS total`)
-	totalQuery += database.Query(`, ( SELECT COUNT(*)`)
+	totalQuery += database.Query(`SELECT COUNT(activity.id) AS total, project.title`)
 	totalQuery += database.Query(`FROM activity`)
-	totalQuery += database.Query(`WHERE activity.employee_id = employee.id`)
-	totalQuery += database.Query(`AND activity.expired != 1 )`)
-	totalQuery += database.Query(`AS total_activity`)
-	totalQuery += database.Query(`FROM employee`)
-	totalQuery += database.Query(`WHERE employee.expired != 1`)
-	totalQuery += database.Query(`AND ( LOWER(name) LIKE LOWER('%`+ querySearch +`%')`)
-	totalQuery += database.Query(`OR LOWER(rate) LIKE LOWER('%`+ querySearch +`%') )`)
+	totalQuery += database.Query(`INNER JOIN project ON project.id = activity.project_id`)
+	totalQuery += database.Query(`WHERE activity.expired != 1`)
+	totalQuery += database.Query(`AND activity.employee_id = `+ id)
+	totalQuery += database.Query(`AND (LOWER(activity.title) LIKE LOWER('%`+ querySearch +`%')`)
+	totalQuery += database.Query(`OR LOWER(project.title) LIKE LOWER('%`+ querySearch +`%'))`)
 	// if totalActivitySearchOk {
 	// 	totalQuery += database.Query(`HAVING total_activity = `+ totalActivitySearch)	
 	// }
+
+	fmt.Printf("QUERY_CURR %v\n", totalQuery);
 
 	result["total"] = database.QueryExec(db, totalQuery)
 
@@ -208,22 +227,23 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 	orderBy := ginContext.Query("order_by")
 
 	var dataQuery string
-	dataQuery += database.Query(`SELECT employee.id, employee.name, employee.rate,`)
-	dataQuery += database.Query(`( SELECT COUNT(activity.id)`)
-	dataQuery += database.Query(`FROM activity`)
-	dataQuery += database.Query(`WHERE activity.employee_id = employee.id`)
-	dataQuery += database.Query(`AND activity.expired != 1 )`)
-	dataQuery += database.Query(`AS total_activity`)
+	dataQuery += database.Query(`SELECT activity.id, activity.title, activity.date_start,`)
+	dataQuery += database.Query(`activity.date_end, activity.time_start, activity.time_end,`)
+	dataQuery += database.Query(`project.title AS project_title,`)
+	dataQuery += database.Query(`TIMEDIFF(activity.time_end, activity.time_start) AS duration`)
 	// dataQuery += database.Query(`GROUP BY employee.id`)
-	dataQuery += database.Query(`FROM employee`)
+	dataQuery += database.Query(`FROM activity`)
+	dataQuery += database.Query(`INNER JOIN project ON project.id = activity.project_id`)
+
 	// if querySearch == "" && orderBy == "default" {
 	// 	dataQuery += database.Query(`WHERE id > `+ pageLimit)
 	// 	dataQuery += database.Query(`AND employee.expired != 1`)
 	// } else {
-		dataQuery += database.Query(`WHERE employee.expired != 1`)
+		dataQuery += database.Query(`WHERE activity.expired != 1`)
+		dataQuery += database.Query(`AND activity.employee_id = `+ id)
 	// }
-	dataQuery += database.Query(`AND ( LOWER(name) LIKE LOWER('%`+ querySearch +`%')`)
-	dataQuery += database.Query(`OR LOWER(rate) LIKE LOWER('%`+ querySearch +`%') )`)
+	dataQuery += database.Query(`AND (LOWER(activity.title) LIKE LOWER('%`+ querySearch +`%')`)
+	dataQuery += database.Query(`OR LOWER(project.title) LIKE LOWER('%`+ querySearch +`%'))`)
 
 	if orderBy != "default" {
 		dataQuery += database.Query("ORDER BY "+ orderBy +" "+ sortBy);	
@@ -231,7 +251,7 @@ func PostResponse( ginContext *gin.Context, db *sql.DB ) (map[string][]map[strin
 
 	// if totalActivitySearchOk {
 	// 	fmt.Printf("ADAAAAA1122\n")
-	// 	dataQuery += database.Query(`GROUP BY employee.id`)
+	// 	dataQuery += database.Query(`GROUP BY project.id`)
 	// 	dataQuery += database.Query(`HAVING total_activity = `+ totalActivitySearch)	
 	// }
 
