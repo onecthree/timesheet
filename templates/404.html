@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="/static/lib/jquery/jquery-3.7.1.min.js?873" integrity="sha256-/JqT3SQfawRcv/BIHPThkBvs0OEvtFFmqPF/lYI/Cxo=" crossorigin="anonymous"></script>
+    <script src="/static/lib/jquery/jquery-ui-1.13.2.min.js?53" integrity="sha256-lSjKY0/srUM9BE3dPm+c4fBo1dky2v27Gdjm2uoZaL0=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200..1000;1,200..1000&display=swap" rel="stylesheet">
+    <script src="/static/js/project.js"></script>
+    <script src=" https://cdn.jsdelivr.net/npm/sweetalert2@11.12.0/dist/sweetalert2.all.min.js "></script>
+    <link href=" https://cdn.jsdelivr.net/npm/sweetalert2@11.12.0/dist/sweetalert2.min.css " rel="stylesheet">
+    <title>Halaman Tidak Ditemukan - {{ .appName }}</title>
+    <style>
+        body
+        {
+            margin: 0;
+            padding: 0;
+        }
+
+        textarea:focus, input:focus, select:focus
+        {
+            outline: none;
+        }
+
+        .nunito
+        {
+            font-family: "Nunito", sans-serif;
+            font-optical-sizing: auto;
+            font-style: normal;
+        }
+
+        #brand-section
+        {
+            border: 0px solid rgba(0, 0, 0, .25);            
+            border-bottom-width: 3px;
+        }
+
+        .brand-target
+        {
+            display: flex;
+            flex-direction: column;
+            font-weight: bold;
+            margin: 15px;
+            margin-left: 50px;
+            color: #F15858;
+        }
+
+        .brand-target span
+        {
+            margin: -4px;
+        }
+
+        #navbar
+        {
+            max-height: 300px;
+/*            background: blue;*/
+        }
+
+        #navbar .main-title
+        {
+            font-size: 30px;
+            font-weight: bold;
+            margin: 10px;
+            margin-left: 25px;
+            opacity: .75;
+/*            background: yellow;*/
+        }
+
+        #navbar .navbar-section
+        {
+            height: 55px;
+            display: flex;
+            flex-direction: column;
+            font-weight: 600;
+            justify-content: space-between;
+/*            background: grey;*/
+        }
+
+        #navbar .navbar-section .navbar-target
+        {
+            display: flex;
+            flex-direction: row;
+            gap: 30px;
+            margin-left: 45px;
+        }
+
+
+        #navbar .navbar-section .navbar-target .links
+        {
+            display: flex;
+            gap: 8px;
+            flex-direction: column;
+            justify-content: space-between;
+/*            background: red;*/
+        }
+
+        .active
+        {
+            color: #2775EC;
+        }
+
+        .non-active
+        {
+            color: rgba(0, 0, 0, .6);
+        }
+
+        .border
+        {
+            border: 2.5px solid #2775EC;
+            border-radius: 3px;
+        }
+
+        .non-border
+        {
+            border: 2.5px solid transparent;
+            border-radius: 3px;
+        }
+
+        #app
+        {
+            height: fit-content;
+            padding: 30px;
+            background: rgba(0, 0, 0, .05);
+        }
+
+        #app-section
+        {
+            min-height: 950px;
+            background: #ffffff;
+            border-radius: 23px;
+        }
+
+        .app-border
+        {
+            padding: 40px;
+            padding-top: 200px;
+            height: 300px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #app .title
+        {
+            font-size: 149px;   
+        }
+
+        #app .desc
+        {
+            font-size: 24px;
+        }
+
+        #app .center
+        {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        a
+        {
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="float-container" style="display: none;">
+        <div id="float-alert" class="nunito" style="display: none;"></div>
+        <div id="float-app" class="nunito" style="display: none;"></div>
+    </div>
+    <div id="container">
+        <div id="brand-section">
+            <div class="brand-target nunito">
+                <span style="font-size: 22px;">Timesheet</span>
+                <span style="font-size: 18px;">Management</span>
+            </div>
+        </div>
+        <div id="navbar">
+            <div class="main-title nunito">HH Timesheet</div>
+            <div class="navbar-section nunito">
+                <div></div>
+                <div class="navbar-target">
+                    <div class="links">
+                        <a href="/employee"class="non-active">Daftar Karyawan</a></a>
+                        <span class="non-border"></span>
+                    </div>
+                    <div class="links">
+                        <a href="/project"class="non-active">Daftar Proyek</a></a>
+                        <span class="non-border"></span>
+                    </div>
+                    <div class="links">
+                        <a href="javascript:void(0);" onclick="javascript:showEmployeeRedirect();" class="non-active">Daftar Kegiatan</a></a>
+                        <span class="non-border"></span>
+                    </div>
+                    <div class="links">
+                        <a href="/setting" class="non-active">Pengaturan<a/></a>
+                        <span class="non-border"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="app" class="nunito">
+            <div id="app-section">
+                <div class="app-border">
+                    <div class="center">
+                        <div class="title">404</div>
+                        <div class="desc">Halaman Tidak Ditemukan</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

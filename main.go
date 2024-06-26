@@ -334,6 +334,12 @@ func main() {
 			"message": message,
 		})	
   	})
+
+  	app.NoRoute(func( c *gin.Context ) {
+  		c.HTML(http.StatusNotFound, "404.html", gin.H{
+  			"appName": os.Getenv("APP_NAME"),
+  		})
+  	});
   	/** Application Route }} **/
 
 	app.Run(os.Getenv("APP_HOST"))
